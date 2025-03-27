@@ -20,7 +20,7 @@ const NavFooter = () => {
             </Stack>
         </Link>
 
-        <Link to={'/workout/new'}>
+        <Link to={'/workout'}>
             <Stack gap={0} align='center' w={"30px"}>
                 <IconPlus size={30} />
                 <p className='text-[13px]'>Workout</p>

@@ -3,7 +3,7 @@ import { Container,  Button} from '@mantine/core'
 import { Badge, HStack } from "@chakra-ui/react"
 import Carousel  from "../components/ui/card-carousel"
 
-interface ExerciseProps {
+export interface ExerciseProp {
   name: string;
   muscleGroup: string;
 }
@@ -23,7 +23,7 @@ export function CardsCarousel() {
   );
 }
 
-export const Exercise = ( { exercise } : {exercise: ExerciseProps} ) => (
+export const Exercise = ( { exercise } : {exercise: ExerciseProp} ) => (
   <div className='flex w-[210px] rounded-md border-[1px] shadow-md flex-row my-2'>
     <div className='flex flex-col px-3 py-4 w-full'>
         <div> { exercise.name } </div>
@@ -31,17 +31,16 @@ export const Exercise = ( { exercise } : {exercise: ExerciseProps} ) => (
           <Badge> { exercise.muscleGroup } </Badge>
         </HStack>
         <div className='flex flex-row justify-between pt-1'>
-          <Button fullWidth className='bg-blue-700 w-[47%] text-[11px]' p={'0'} variant="filled" color="rgba(82, 113, 255, 0.96)" radius="md" my={2}> Add </Button>
-          <Button fullWidth className='bg-gray-400 w-[47%] text-[11px]' p={'0'} variant="filled" color="rgba(173, 173, 173, 0.96)" radius="md" my={2}> View </Button>
+          <Button variant='outline' color='blue' className='flex justify-center w-[100%]'> View </Button>
         </div>
     </div>
   </div>
 )
 
-const exercises = [
+export const exercises = [
   {
     name: 'Bench Press',
-    muscleGroup: 'Chest',
+    muscleGroup: 'Chest'
   },
   {
     name: 'Squat',
@@ -128,7 +127,7 @@ const exercises = [
 
 const Exercises = () => {
   return (
-    <Container mb={"50px"}>
+    <Container p={0} mb={"50px"}>
       <br />
       <h1 className='text-5xl md:text-7xl'> Exercises </h1>
       <br />

@@ -4,7 +4,7 @@ import { IconPremiumRights } from '@tabler/icons-react';
 
 const ProfileData = () => {
   return (
-    <Container className='border-2 px-4 py-3 shadow-md rounded-md my-5 bg-white' >
+    <Container className='border-[1px] px-4 py-3 shadow-md rounded-md my-5 bg-white' >
     <Stack>
       <Group>
         <Avatar size={'xl'} />
@@ -27,7 +27,7 @@ const ProfileData = () => {
             <p>[nr]</p>
           </Stack>
       </Group>
-      <Button fullWidth className='shadow-md text-white border-2 bg-red-700' color='rgba(97, 96, 96, 0.16)' variant="filled" radius="md" my={2}> Edit Profile </Button>
+      <Button variant='outline' color='black' className='w-full'> Edit Profile </Button>
     </Stack>
   </Container>
   );
@@ -35,31 +35,31 @@ const ProfileData = () => {
 
 const CalendarData = () => {
   return (
-    <Container className=' border-2 px-4 py-3 shadow-md rounded-md my-5 bg-white'>
+    <Container className=' border-[1px] px-4 py-3 shadow-md rounded-md my-5 bg-white'>
       <Group>
         <h1 className='text-xl'> Calendar </h1>
         <IconPremiumRights color='yellow'/>
       </Group>
-      <Badge> Premium </Badge>
+      <Badge className='flex justify-center font-light'> Premium </Badge>
     </Container>
   );
 }
 
 const Chart = () => {
   return (
-    <Container className=' border-2 px-4 py-3 shadow-md rounded-md my-5 bg-white'>
+    <Container className=' border-[1px] px-4 py-3 shadow-md rounded-md my-5 bg-white'>
       <Group>
         <h1 className='text-xl'> Chart </h1>
         <IconPremiumRights color='yellow'/>
       </Group>
-      <Badge> Premium </Badge>
+      <Badge className='flex justify-center font-light'> Premium </Badge>
     </Container>
   );  
 }
 
 const Workouts = () => {
   return (
-    <Container className=' border-2 px-4 py-3 shadow-md rounded-md my-5 bg-white'>
+    <Container className=' border-[1px] px-4 py-3 shadow-md rounded-md my-5 bg-white'>
       <h1 className='text-xl'> Workouts </h1>
     </Container>
   );
