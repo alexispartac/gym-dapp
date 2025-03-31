@@ -1,72 +1,45 @@
-import React from 'react'
-
-import { Container, Button, Stack, Group } from '@mantine/core'
+import React, { forwardRef, useImperativeHandle, useRef } from 'react'
+import { Container, Button, Stack, Group, Modal } from '@mantine/core'
 import { IconSearch, IconLibrary } from '@tabler/icons-react';
 import { ExerciseProp,  } from './Exercises';
-
-interface RoutineProp {
+import { useDisclosure } from '@mantine/hooks';
+import { exercises } from './Exercises';
+import NewRoutine from './new-routine/NewRoutine';
+import Routine from './new-routine/Routine';
+export interface RoutineExerciseProp extends ExerciseProp {
+  inRoutine: boolean;
+}
+export interface RoutineProp {
   name: string;
-  exercises: ExerciseProp[];
+  exercises: RoutineExerciseProp[];
 }
 
-const routinesList = [
+export const exercisesForRoutine: RoutineExerciseProp[] = exercises.map( (exercise: ExerciseProp) =>  {
+  return { ...exercise, inRoutine: false}
+})
+
+// rutinele din baza de date
+export const routinesList = [
   {
     name: 'Push Day',
     exercises: [
       {
         name: 'Bench Press',
         muscleGroup: 'Chest',
-        id: '1'
+        id: '1',
+        inRoutine: false
       },
       {
         name: 'Squat',
         muscleGroup: 'Legs',
-        id: '2'
+        id: '2',
+        inRoutine: false
       },
       {
         name: 'Deadlift',
         muscleGroup: 'Back',
-        id: '3'
-      }
-    ],
-  },
-  {
-    name: 'Pull Day',
-    exercises: [
-      {
-        name: 'Overhead Press',
-        muscleGroup: 'Shoulders',
-        id: '4'
-      },
-      {
-        name: 'Bicep Curl',
-        muscleGroup: 'Arms',
-        id: '5'
-      },
-      {
-        name: 'Tricep Extension',
-        muscleGroup: 'Arms',
-        id: '6'
-      }
-    ],
-  },
-  {
-    name: 'Leg Day',
-    exercises: [
-      {
-        name: 'Squat',
-        muscleGroup: 'Legs',
-        id: '7'
-      },
-      {
-        name: 'Lunges',
-        muscleGroup: 'Legs',
-        id: '8'
-      },
-      {
-        name: 'Leg Press',
-        muscleGroup: 'Legs',
-        id: '9'
+        id: '3',
+        inRoutine: false
       }
     ],
   },
@@ -76,79 +49,168 @@ const routinesList = [
       {
         name: 'Running',
         muscleGroup: 'Cardio',
-        id: '10'
+        id: '10',
+        inRoutine: false
       },
       {
         name: 'Cycling',
         muscleGroup: 'Cardio',
-        id: '11'
+        id: '11',
+        inRoutine: false
       },
       {
         name: 'Swimming',
         muscleGroup: 'Cardio',
-        id: '12'
+        id: '12',
+        inRoutine: false
+      }
+    ],
+  },
+  {
+    name: 'Cardio',
+    exercises: [
+      {
+        name: 'Running',
+        muscleGroup: 'Cardio',
+        id: '10',
+        inRoutine: false
+      },
+      {
+        name: 'Cycling',
+        muscleGroup: 'Cardio',
+        id: '11',
+        inRoutine: false
+      },
+      {
+        name: 'Swimming',
+        muscleGroup: 'Cardio',
+        id: '12',
+        inRoutine: false
+      }
+    ],
+  },
+  {
+    name: 'Cardio',
+    exercises: [
+      {
+        name: 'Running',
+        muscleGroup: 'Cardio',
+        id: '10',
+        inRoutine: false
+      },
+      {
+        name: 'Cycling',
+        muscleGroup: 'Cardio',
+        id: '11',
+        inRoutine: false
+      },
+      {
+        name: 'Swimming',
+        muscleGroup: 'Cardio',
+        id: '12',
+        inRoutine: false
+      }
+    ],
+  },
+  {
+    name: 'Cardio',
+    exercises: [
+      {
+        name: 'Running',
+        muscleGroup: 'Cardio',
+        id: '10',
+        inRoutine: false
+      },
+      {
+        name: 'Cycling',
+        muscleGroup: 'Cardio',
+        id: '11',
+        inRoutine: false
+      },
+      {
+        name: 'Swimming',
+        muscleGroup: 'Cardio',
+        id: '12',
+        inRoutine: false
       }
     ],
   }
 ]
 
+export const RoutinesElements = forwardRef((_props, ref) => {
+  const [opened, { open, close }] = useDisclosure(false);
+
+  useImperativeHandle(ref, () => ({
+    open,
+    close,
+  }));
+
+  return (
+    <Container>
+      <Modal 
+        opened={opened} 
+        onClose={close}
+        title='Routines'
+        >
+        <Stack className='py-[20px] overflow-y-auto h-max-[screen]'>
+          {/* maxim 6 routines */}
+          {routinesList.map((routine, index) => (
+            <Routine key={index} routine={routine} />
+          ))}
+        </Stack>
+      </Modal>
+    </Container>
+  );
+});
+
 const RoutineContiner = () => {
-  return(
-    <Stack>
-      <h1 className='text-xl font-medium'> Routines </h1>
-      <Group className='flex justify-between'>
-        <Button variant='outline' color='blue' className='w-[50%] '>
-          <IconLibrary className='mr-2' />
+  const [opened, { open: openModal, close: closeModal }] = useDisclosure(false);
+
+  // creeaza un ref pentru componenta RoutinesElements
+  const routinesRef = useRef<{ open: () => void; close: () => void }>(null);
+
+  const handleOpenModal = () => {
+    if (routinesRef.current) {
+      routinesRef.current.open(); // apeleaza functia open din componenta RoutinesElements
+    }
+  };
+
+  return (
+    <Container p={0}>
+      <h1 className="text-xl font-medium">Routines</h1>
+      <RoutinesElements ref={routinesRef} />
+
+      <Group className="flex justify-between my-[10px]">
+        <Modal
+          opened={opened}
+          onClose={closeModal}
+          title="Create a Routine"
+        >
+          <NewRoutine exercises={exercisesForRoutine} handleClose={closeModal} />
+        </Modal>
+        <Button
+          variant="outline"
+          color="blue"
+          className="w-[50%]"
+          onClick={openModal}
+        >
+          <IconLibrary className="mr-2" />
           New Routine
         </Button>
-        <Button variant='outline' color='blue' className='w-[42%]'>
-          <IconSearch className='p-1' />
+        <Button
+          variant="outline"
+          color="blue"
+          className="w-[42%]"
+          onClick={handleOpenModal} // Apelare funcție `open` din copil
+        >
+          <IconSearch className="p-1" />
           Explore
         </Button>
       </Group>
-    </Stack>
-  );
-}
-
-const Routine = ({ routine } : { routine : RoutineProp }) => {
-  return(
-    <Container className="w-full h-[120px] bg-gray-100 py-[10px] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center">
-      <Group>
-        <Stack gap={0.5} className='w-[45%]'>
-          <h1 className='font-medium'>{routine.name}</h1>
-          <Group>
-              <Stack gap={0} pl={5} className='w-[110px]'>
-                <h1 className='truncate'> {routine.exercises[0].name} </h1>
-                <h1 className='truncate'> {routine.exercises[1].name} </h1>
-                <h1 className='truncate'> {routine.exercises[2].name} </h1>
-              </Stack>
-          </Group>
-        </Stack>
-        <Stack gap={1} className='w-[45%]'>
-            <Button variant='outline' color='blue' className='w-full my-[5px]'>
-              {/* o componenta care arata exercitiile salvate in rutina, ofera posibilitatea sa le si schimbe */}
-              VIEW 
-            </Button>
-            <Button variant='outline' color='blue' className='bg-blue-500 text-white w-full my-[5px]'>
-              {/* o componenta new workout care preia exercitiile salvate in rutina */}
-              START
-            </Button>
-        </Stack>
-      </Group>
     </Container>
   );
-}
+};
 
-export const RoutinesElements = () => {
-  return(
-    <Stack>
-        {/* maxim 6 routines */}
-        {routinesList.map((routine, index) => (
-          <Routine key={index} routine={routine} />
-        ))}
-    </Stack>
-  );
-}
 
 const Routines = () => {
   return (
@@ -159,8 +221,6 @@ const Routines = () => {
       <div className='py-[2rem] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center'>
         <RoutineContiner />   
       </div>
-      <br />
-      <RoutinesElements />
       <br /> <br /> <br /> <br />
     </Container>
   )
