@@ -1,7 +1,8 @@
 import React from 'react'
+
 import { Container, Button, Stack, Group } from '@mantine/core'
 import { IconSearch, IconLibrary } from '@tabler/icons-react';
-import { ExerciseProp } from './Exercises';
+import { ExerciseProp,  } from './Exercises';
 
 interface RoutineProp {
   name: string;
@@ -15,48 +16,38 @@ const routinesList = [
       {
         name: 'Bench Press',
         muscleGroup: 'Chest',
+        id: '1'
       },
       {
         name: 'Squat',
         muscleGroup: 'Legs',
+        id: '2'
       },
       {
-        name: 'Overhead Press',
-        muscleGroup: 'Shoulders',
-      },
-      {
-        name: 'Bicep Curl',
-        muscleGroup: 'Arms',
-      },
-      {
-        name: 'Tricep Extension',
-        muscleGroup: 'Arms',
-      },
+        name: 'Deadlift',
+        muscleGroup: 'Back',
+        id: '3'
+      }
     ],
   },
   {
     name: 'Pull Day',
     exercises: [
       {
-        name: 'Deadlift',
-        muscleGroup: 'Back',
+        name: 'Overhead Press',
+        muscleGroup: 'Shoulders',
+        id: '4'
       },
       {
-        name: 'Barbell Row',
-        muscleGroup: 'Back',
-      },
-      {
-        name: 'Dumbbell Fly',
-        muscleGroup: 'Chest',
-      },
-      {
-        name: 'Hamstring Curl',
-        muscleGroup: 'Legs',
-      },
-      {
-        name: 'Skull Crushers',
+        name: 'Bicep Curl',
         muscleGroup: 'Arms',
+        id: '5'
       },
+      {
+        name: 'Tricep Extension',
+        muscleGroup: 'Arms',
+        id: '6'
+      }
     ],
   },
   {
@@ -65,23 +56,18 @@ const routinesList = [
       {
         name: 'Squat',
         muscleGroup: 'Legs',
+        id: '7'
       },
       {
         name: 'Lunges',
         muscleGroup: 'Legs',
+        id: '8'
       },
       {
         name: 'Leg Press',
         muscleGroup: 'Legs',
-      },
-      {
-        name: 'Calf Raises',
-        muscleGroup: 'Legs',
-      },
-      {
-        name: 'Plank',
-        muscleGroup: 'Core',
-      },
+        id: '9'
+      }
     ],
   },
   {
@@ -90,23 +76,18 @@ const routinesList = [
       {
         name: 'Running',
         muscleGroup: 'Cardio',
+        id: '10'
       },
       {
         name: 'Cycling',
         muscleGroup: 'Cardio',
-      },
-      {
-        name: 'Jump Rope',
-        muscleGroup: 'Cardio',
+        id: '11'
       },
       {
         name: 'Swimming',
         muscleGroup: 'Cardio',
-      },
-      {
-        name: 'Rowing',
-        muscleGroup: 'Cardio',
-      },
+        id: '12'
+      }
     ],
   }
 ]
@@ -145,9 +126,11 @@ const Routine = ({ routine } : { routine : RoutineProp }) => {
         </Stack>
         <Stack gap={1} className='w-[45%]'>
             <Button variant='outline' color='blue' className='w-full my-[5px]'>
+              {/* o componenta care arata exercitiile salvate in rutina, ofera posibilitatea sa le si schimbe */}
               VIEW 
             </Button>
             <Button variant='outline' color='blue' className='bg-blue-500 text-white w-full my-[5px]'>
+              {/* o componenta new workout care preia exercitiile salvate in rutina */}
               START
             </Button>
         </Stack>
