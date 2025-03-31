@@ -40,6 +40,7 @@ export const Exercise = ( { exercise } : {exercise: ExerciseProp} ) => (
   </div>
 )
 
+// salvate in baza de date
 export const exercises = [  
   {
     name: 'Bench Press',
