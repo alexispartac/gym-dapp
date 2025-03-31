@@ -316,20 +316,23 @@ const WorkoutExercises = (
     };
 
     const handleFinishWorkout = ( exercisesWorkout : WorkoutExercisesProp[] ) => {
+        let flag = true;
         exercisesWorkout.forEach( (exercise: WorkoutExercisesProp) =>  
             {
                 const setIsNotFinish = exercise.sets.find( (set: SetProp) => set.done === false )
-                if( setIsNotFinish !== undefined)
-                    console.log(' Nu poti finaliza workout ul pentru ca ai seturi nefinalizate.');
-                else{
-                    // adauga exercitiilt in baza de date a utilizatorului
-                    // modifica seturile pentru urmatoarele antrenamente
-                    //
-                    handleDiscardWorkout();
-                    console.log("Congrats! Finish workout!", exercisesWorkout);
-                }
-        }
+                if(setIsNotFinish !== undefined)
+                    flag = false;
+            }
         )
+        if( !flag )
+            console.log(' Nu poti finaliza workout ul pentru ca ai seturi nefinalizate.');
+        else{
+            // adauga exercitiilt in baza de date a utilizatorului
+            // modifica seturile pentru urmatoarele antrenamente
+            //
+            handleDiscardWorkout();
+            console.log("Congrats! Finish workout!", exercisesWorkout);
+        }
     }
 
     return (
