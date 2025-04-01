@@ -40,7 +40,7 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
   }
 
   const handleChangeNameRutine = ( e: any ) => {
-    setName(e.target.value);
+      setName(e.target.value);
   }
 
   return (
@@ -67,7 +67,7 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
           exercises={exercises}
           />
       </Modal>
-      <Input placeholder='Routine Name' onChange={ e => handleChangeNameRutine(e)}/>
+      <Input placeholder='Routine Name' maxLength={12} onChange={ e => handleChangeNameRutine(e)}/>
 
       {
         routineExercises.map( (exercise : RoutineExerciseProp) => {
