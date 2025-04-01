@@ -1,14 +1,15 @@
 import React, { useState, useEffect }  from "react";
 import { Button, Container, Group, Modal, Stack } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IconPlus } from "@tabler/icons-react";
-import { RootState } from "./store";
+import { AppDispatch, RootState } from "./store";
 import { WorkoutExercisesProp } from "../Workout";
 import WorkoutExercises from "./WorkoutExercises";
+import { clearExercises } from "./workoutSlice";
 
 
-const Timer = () => {
+export const Timer = () => {
   const [seconds, setSeconds] = useState(0);
   const [minutes, setMinutes] = useState(0);
   const [hours, setHours] = useState(0);
@@ -41,7 +42,7 @@ const Timer = () => {
   );
 };
 
-const Volume = () => {
+export const Volume = () => {
   const volume = useSelector((state: RootState) => state.volume.count);
   return (
     <div>
@@ -51,7 +52,7 @@ const Volume = () => {
   );
 }
 
-const Sets = () => {
+export const Sets = () => {
   const sets = useSelector((state: RootState) => state.sets.count);
   return (
     <div>
@@ -65,17 +66,23 @@ const NewWorkout = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const [statusWorkout, setStatusWorkout] = React.useState<boolean>(false);
   const isMobile = useMediaQuery("(max-width: 50em)");
+  const dispatch = useDispatch<AppDispatch>();
 
   const workoutExercises: WorkoutExercisesProp[] = useSelector(
     (state: RootState) => state.workout.exercises
   );
+
+  
 
   return (
     <Container m={0} p={0}>
       {statusWorkout ? (
         <Modal
           opened={opened}
-          onClose={close} 
+          onClose={() => {
+            close();
+            dispatch(clearExercises());
+          }} 
           fullScreen={isMobile}
           transitionProps={{ transition: "fade-up", duration: 700 }}
           title="Log Workout" // ﹀
