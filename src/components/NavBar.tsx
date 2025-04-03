@@ -22,6 +22,8 @@ const BurgerMenu = ( {opened, toggle} : {opened: true, toggle: () => void}) => {
                 <Link to={'/feed'} onClick={toggle}> <p> Feed </p> </Link>
                 <Link to={'/routines'} onClick={toggle}> <p> Routines </p> </Link>
                 <Link to={'/exercises'} onClick={toggle}> <p> Exercises </p> </Link>
+                <Link to={'/wallet'} onClick={toggle}> <p> Wallet </p> </Link>
+                
             </Stack>
             <Group className='mt-[330px]'>
                 <Avatar radius="xl" />
