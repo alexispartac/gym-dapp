@@ -1,6 +1,50 @@
 import { Container } from "@mantine/core";
 import { WorkoutExercisesProp } from "../Workout";
 import React from "react";
+import ExerciseDescription from "../exercises/ExerciseDescription";
+
+const Exercise = (
+    { exercise, handleAddExercise, handleDeleteExercise } : 
+    { 
+        exercise: WorkoutExercisesProp 
+        handleAddExercise: (exercise: WorkoutExercisesProp) => void;
+        handleDeleteExercise: (exercise: WorkoutExercisesProp) => void;
+    }) => {
+    const [isIn, setIsIn] = React.useState<boolean>(exercise.inWorkout);
+    const [isModalOpen, setModalOpen] = React.useState<boolean>(false);
+    const handleModalOpen = () => setModalOpen(true);
+    const handleModalClose = () => setModalOpen(false);
+    
+    const addExercise = () => {
+        setIsIn(true);
+        handleAddExercise(exercise);
+    }
+
+    const deleteExercises = () => {
+        setIsIn(false);
+        handleDeleteExercise(exercise);
+    }
+
+    return (
+        <div>
+            <div>
+                {isModalOpen && <ExerciseDescription exercise={exercise} key={exercise.id} onClose={handleModalClose} />}
+            </div>
+            <div className='flex flex-row my-[7px] mx-[2px] shadow-md shadow-gray-400 hover:bg-gray-300'>
+                {
+                    isIn ?
+                        <div className='h-[50px] w-[5px] bg-blue-700'></div>
+                        :
+                        null
+                }
+                <h1 className='w-[80%] flex justify-start p-[10px] cursor-help' onClick={handleModalOpen}> {exercise.name}</h1>
+                <p className='flex justify-center w-[45px] p-[10px] cursor-pointer' onClick={addExercise}> ✔️ </p>
+                <p className='flex justify-center w-[42px] p-[10px] cursor-pointer' onClick={deleteExercises}> ❌ </p>
+            </div>
+        </div>
+    );
+}
+
 
 
 const ListOfExercises = (
@@ -21,39 +65,16 @@ const ListOfExercises = (
         }
     );
 
-    const Exercise = ({ exercise }: { exercise: WorkoutExercisesProp }) => {
-        const [isIn, setIsIn] = React.useState<boolean>(exercise.inWorkout);
-
-        const addExercise = () => {
-            setIsIn(true);
-            handleAddExercise(exercise);
-        }
-
-        const deleteExercises = () => {
-            setIsIn(false);
-            handleDeleteExercise(exercise);
-        }
-
-        return (
-            <div className='flex flex-row my-[7px] mx-[2px] shadow-md shadow-gray-400'>
-                {
-                    isIn ?
-                        <div className='h-[50px] w-[5px] bg-blue-700'></div>
-                        :
-                        null
-                }
-                <h1 className='w-[80%] flex justify-start p-[10px]' > {exercise.name}</h1>
-                <p className='flex justify-center w-[45px] p-[10px]' onClick={addExercise}> ✔️ </p>
-                <p className='flex justify-center w-[42px] p-[10px]' onClick={deleteExercises}> ❌ </p>
-            </div>
-        );
-    }
-
     return (
         <Container>
             {
                 filterCategoryExercises.flat().map((exercise: WorkoutExercisesProp) => (
-                    <Exercise key={exercise.id} exercise={exercise} />
+                    <Exercise 
+                        key={exercise.id} 
+                        exercise={exercise} 
+                        handleAddExercise={handleAddExercise} 
+                        handleDeleteExercise={handleDeleteExercise} 
+                    />
                 ))
             }
         </Container>

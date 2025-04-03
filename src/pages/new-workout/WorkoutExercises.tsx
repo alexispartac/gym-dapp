@@ -7,7 +7,7 @@ import { AppDispatch } from "./store";
 import { addExercise, clearExercises, removeExercise } from "./workoutSlice";
 import { resetVolume } from "./volumeSlice";
 import { resetSets } from "./setsSlice";
-import { ExerciseProp, exercises } from "../Exercises";
+import { ExerciseProp, exercises, ExerciseCategory } from "../Exercises";
 import { WorkoutExercisesProp } from "../Workout";
 import ListOfExercises from "./ListOfExercises";
 import Exercise, { SetProp } from "./Exercise";
@@ -22,209 +22,19 @@ const exercisesWorkout = exercises.map(
     }
 )
 
-export const userExercises =
-[  
-    {
-      name: 'Bench Press',
-      muscleGroup: 'Chest',
-      id: '1',
-      sets: [
-        { setNumber: 1, kg: 80, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 90, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Squat',
-      muscleGroup: 'Legs',
-      id: '2',
-      sets: [
-        { setNumber: 1, kg: 150, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 170, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 190, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Deadlift',
-      muscleGroup: 'Back',
-      id: '3',
-      sets: [
-        { setNumber: 1, kg: 200, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 220, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 240, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Overhead Press',
-      muscleGroup: 'Shoulders',
-      id: '4',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Bicep Curl',
-      muscleGroup: 'Arms',
-      id: '5',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Tricep Extension',
-      muscleGroup: 'Arms',
-      id: '6',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Lunges',
-      muscleGroup: 'Legs',
-      id: '7',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Plank',
-      muscleGroup: 'Core',
-      id: '8',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Pull-Up',
-      muscleGroup: 'Back',
-      id: '9',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Dumbbell Rows',
-      muscleGroup: 'Back',
-      id: '10',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Lat Pulldown',
-      muscleGroup: 'Back',
-      id: '11',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Cable Crossover',
-      muscleGroup: 'Back',
-      id: '12',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Leg Press',
-      muscleGroup: 'Legs',
-      id: '13',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Chest Fly',
-      muscleGroup: 'Chest',
-      id: '14',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Shoulder Press',
-      muscleGroup: 'Shoulders',
-      id: '15',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Tricep Kickback',
-      muscleGroup: 'Arms',
-      id: '16',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Hamstring Curl',
-      muscleGroup: 'Legs',
-      id: '17',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Calf Raises',
-      muscleGroup: 'Legs',
-      id: '18',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Barbell Curl',
-      muscleGroup: 'Arms',
-      id: '19',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
-    },
-    {
-      name: 'Skull Crushers',
-      muscleGroup: 'Arms',
-      id: '20',
-      sets: [
-        { setNumber: 1, kg: 100, reps: 10, previous: '24kg x 12', done: false },
-        { setNumber: 2, kg: 120, reps: 8, previous: '24kg x 12', done: false },
-        { setNumber: 3, kg: 140, reps: 6, previous: '24kg x 12', done: false }
-      ]
+export const userExercises = exercises.map(
+    (exercise: ExerciseProp) => {
+        return {
+            ...exercise,
+            sets: [
+              { setNumber: 1, kg: 5, reps: 20, previous: "3kg x 15", done: false },
+              { setNumber: 2, kg: 6, reps: 18, previous: "3kg x 15", done: false },
+              { setNumber: 3, kg: 7, reps: 15, previous: "3kg x 15", done: false }
+            ]
+        }
     }
-]
+
+)
 
 const WorkoutExercises = (
     { workoutExercises, setStatusWorkout }:
@@ -374,9 +184,7 @@ const WorkoutExercises = (
                                 clearable
                                 value={selectedExercises}
                                 onChange={setSelectedExercises}
-                                data={
-                                    ['All Muscles', 'Legs', 'Back', 'Abdominals', 'Abductors', 'Biceps', 'Calves', 'Cardio', 'Chest', 'Full Body', 'Glutes', 'Lats', 'Neck', 'Shoulders', 'Traps', 'Triceps', 'Upper Back']
-                                }
+                                data={ExerciseCategory}
                             />
                         </Stack>
                     </Container>

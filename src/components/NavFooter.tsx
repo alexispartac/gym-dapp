@@ -9,7 +9,7 @@ const NavFooter = () => {
         <Link to={'/'}>
             <Stack gap={0} align='center' w={"30px"}>
                 <IconHome size={30} />
-                <p> Home </p>
+                <p className='text-[13px]'> Home </p>
             </Stack>
         </Link>
                 
