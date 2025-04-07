@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Container } from '@mantine/core'
 import {
   HStack,
@@ -6,7 +6,9 @@ import {
   SkeletonText,
   Stack,
 } from "@chakra-ui/react"
-
+import { useUser } from '../context/UserContext';
+import { useCookies } from 'react-cookie';
+import { CheckBalance } from './solana/check-balance';
 interface NewsItem {
   id: number;
   name: string;
@@ -48,13 +50,11 @@ const newsItems : NewsItem[] = [
 ];
 
 const Balance = () => {
+  const { balance } = useUser();
   return (
     <div className='text-3xl items-center my-20 flex flex-col'>
-      <h1>
-        Balance
-      </h1>
       <h1 className='text-5xl'>
-        0.00
+        { balance } SOL
       </h1>
     </div>
   )
@@ -62,7 +62,7 @@ const Balance = () => {
 
 const News = () => {
   const [news, setNews] = React.useState<NewsItem[]>([])
-  
+
   // fetch news
   React.useEffect(() => {
     // todo: fetch news from server
@@ -73,7 +73,7 @@ const News = () => {
     <Container>
       {news.map((data: any) => {
         return (
-          <New data={data} />
+          <New key={data.id} data={data} />
         )
       })}
     </Container>
@@ -120,6 +120,21 @@ const New = ({data} : {data: any} ) => {
 }
 
 const Home = () => {
+  const { setBalance, setUser } = useUser();
+
+  const [cookies] = useCookies(['PublicKey', 'login']);
+
+  useEffect( () => {
+      if (cookies.PublicKey)
+      {
+          CheckBalance({pubkey: cookies.PublicKey.publicKey}).then( ( balance : number ) => {
+              setBalance(balance);
+          }).catch(error => alert('Sorry, try again later!')); 
+      }
+      if (cookies.login)
+        setUser({...cookies.login, publicKey: cookies.PublicKey.publicKey, isAuthenticated: true } )
+  }, [cookies.PublicKey, cookies.login, setBalance, setUser])
+
   return (
     <Container >
       <div className='text-3xl'>Home</div>

@@ -79,6 +79,7 @@ const NewWorkout = () => {
       {statusWorkout ? (
         <Modal
           opened={opened}
+          withCloseButton={false}
           onClose={() => {
             close();
             dispatch(clearExercises());

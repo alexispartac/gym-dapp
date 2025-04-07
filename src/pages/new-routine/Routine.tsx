@@ -46,6 +46,7 @@ const StartRoutine = ({
             {openStartRoutine ? (
                 <Modal
                     opened={openStartRoutine}
+                    withCloseButton={false}
                     onClose={() => {
                         close();
                         dispatch(clearExercises());

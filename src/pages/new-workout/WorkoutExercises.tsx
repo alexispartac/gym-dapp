@@ -1,9 +1,9 @@
 import React from "react";
 import { Button, Container, Group, Modal, MultiSelect, Stack } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { IconPlus } from "@tabler/icons-react";
-import { AppDispatch } from "./store";
+import { AppDispatch, RootState } from "./store";
 import { addExercise, clearExercises, removeExercise } from "./workoutSlice";
 import { resetVolume } from "./volumeSlice";
 import { resetSets } from "./setsSlice";
@@ -11,6 +11,11 @@ import { ExerciseProp, exercises, ExerciseCategory } from "../Exercises";
 import { WorkoutExercisesProp } from "../Workout";
 import ListOfExercises from "./ListOfExercises";
 import Exercise, { SetProp } from "./Exercise";
+import { useCookies } from "react-cookie";
+import TransferSolana from "../solana/transfer-sol";
+import { SECRET_KEY } from '../../constants'
+import Reward from "./Reward";
+import { Keypair } from "@solana/web3.js";
 
 const exercisesWorkout = exercises.map(
     (exercise: ExerciseProp) => {
@@ -44,6 +49,10 @@ const WorkoutExercises = (
     const [opened, { open, close }] = useDisclosure(false);
     const isMobile = useMediaQuery('(max-width: 50em)');
     const dispatch = useDispatch<AppDispatch>();
+    const sets = useSelector((state: RootState) => state.sets.count);
+    const volume = useSelector((state: RootState) => state.volume.count);
+    const [ cookies ] = useCookies(['PublicKey']);
+    const publicKey = cookies.PublicKey.publicKey;
 
     // lista de exercitii disponibile pentru workout, in care am evidentiat cele care sunt deja in workout
     const [listOfExercisesForWorkout, setListOfExercisesForWorkout] = React.useState<WorkoutExercisesProp[]>(
@@ -125,7 +134,7 @@ const WorkoutExercises = (
         return exerciseKeys.get(exerciseId);
     };
 
-    const handleFinishWorkout = ( exercisesWorkout : WorkoutExercisesProp[] ) => {
+    const handleFinishWorkout = async( exercisesWorkout : WorkoutExercisesProp[] ) => {
         let flag = true;
         exercisesWorkout.forEach( (exercise: WorkoutExercisesProp) =>  
             {
@@ -139,8 +148,10 @@ const WorkoutExercises = (
         else{
             // adauga exercitiilt in baza de date a utilizatorului
             // modifica seturile pentru urmatoarele antrenamente
-            //
+            const amount = Reward({ sets, volume });    
+            const senderKeypair : Keypair = Keypair.fromSecretKey(SECRET_KEY);
             handleDiscardWorkout();
+            await TransferSolana({ senderKeypair, recipientPubKey: publicKey, amountToSend: amount });
             console.log("Congrats! Finish workout!", exercisesWorkout);
         }
     }
