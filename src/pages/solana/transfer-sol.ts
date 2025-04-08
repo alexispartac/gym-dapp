@@ -61,7 +61,7 @@ const TransferSolana = async ( { senderKeypair, recipientPubKey, amountToSend } 
     const success = await sendSol(connection, senderKeypair, recipientPubKey, amountToSend);
     if (!success) return;
 
-    console.log("🎉 Transaction completed successfully!");
+    console.log(`🎉 Transaction completed successfully! You send ${amountToSend/LAMPORTS_PER_SOL} SOL`);
 
 }
 

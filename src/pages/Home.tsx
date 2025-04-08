@@ -53,7 +53,7 @@ const Balance = () => {
   const { balance } = useUser();
   return (
     <div className='text-3xl items-center my-20 flex flex-col'>
-      <h1 className='text-5xl'>
+      <h1 className='text-xl md:text-5xl'>
         { balance } SOL
       </h1>
     </div>

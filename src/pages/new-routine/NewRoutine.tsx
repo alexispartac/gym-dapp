@@ -1,9 +1,10 @@
 import { Button, Container, Input, Modal, MultiSelect } from "@mantine/core";
 import Exercise from "./Exercise";
-import { exercisesForRoutine, RoutineExerciseProp, routinesList } from "../Routines";
+import { exercisesForRoutine, RoutineExerciseProp, RoutineProp, routinesList } from "../Routines";
 import ListOfExercises from "./ListOfExercises";
 import { useDisclosure } from "@mantine/hooks";
 import React from "react";
+import { modals } from "@mantine/modals";
 
 
 const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseProp[], handleClose: () => void } ) => {
@@ -11,7 +12,6 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
   const [routineExercises, setRoutineExercises] = React.useState<RoutineExerciseProp[]>([]);
   const [name, setName] = React.useState<string>('');
   const [selectedExercises, setSelectedExercises] = React.useState<string[]>(['All Muscles']);  // categoriile de exercitii
-
 
   const handleAddExercise = ( exercise : RoutineExerciseProp ) => { 
     setRoutineExercises([...routineExercises, { ...exercise, inRoutine: true}]); 
@@ -23,19 +23,66 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
     exercises.map((ex: RoutineExerciseProp) => ex.id === exercise.id ? ex.inRoutine = false : null );
   }
 
-  const handleSaveRoutine = ( routineExercises : RoutineExerciseProp[] ) => {
-    let flag = routineExercises.length === 0 || name === '' ? false : true;
-    if(flag){
+  const handleSaveRoutine = (routineExercises: RoutineExerciseProp[]) => {
+    if (name === '') {
+      modals.openContextModal({
+        modal: 'expected',
+        title: 'Save routine',
+        centered: true,
+        withCloseButton: false,
+        size: 'sm',
+        radius: 'md',
+        innerProps: {
+          modalBody: 'You have to give a name to the routine!',
+        },
+      });
+      return;
+    } else if (routineExercises.length === 0) {
+      modals.openContextModal({
+        modal: 'expected',
+        title: 'Save routine',
+        centered: true,
+        withCloseButton: false,
+        size: 'sm',
+        radius: 'md',
+        innerProps: {
+          modalBody: 'You have to add at least one exercise to create a routine!',
+        },
+      });
+      return;
+    } else if (routinesList.find((routine: RoutineProp) => routine.name === name)) {
+      modals.openContextModal({
+        modal: 'expected',
+        title: 'Save routine',
+        centered: true,
+        withCloseButton: false,
+        size: 'sm',
+        radius: 'md',
+        innerProps: {
+          modalBody: 'You already have a routine with this name!',
+        },
+      });
+      return;
+    } else {
       //  inserare in baza de date a utilizatorului
       routinesList.push({ name: name, exercises: routineExercises });
       //  resetare 
-      exercisesForRoutine.map((ex: RoutineExerciseProp) => ex.inRoutine = false );
+      exercisesForRoutine.map((ex: RoutineExerciseProp) => ex.inRoutine = false);
       setRoutineExercises([]);
       setName('');
       console.log('Rutina salvata cu succes!');
       handleClose();
-    } else {
-      console.log('Rutina nu a fost salvata!');
+      modals.openContextModal({
+        modal: 'expected',
+        title: 'Save routine',
+        centered: true,
+        withCloseButton: false,
+        size: 'sm',
+        radius: 'md',
+        innerProps: {
+          modalBody: 'Routine saved successfully!',
+        },
+      });
     }
   }
 
