@@ -16,77 +16,7 @@ export const exercisesForRoutine: RoutineExerciseProp[] = exercises.map( (exerci
 })
 
 // rutinele din baza de date
-export const routinesList = [
-  {
-    name: 'Push Day',
-    exercises: [
-      {
-        name: 'Bench Press',
-        muscleGroup: 'Chest',
-        id: '1',
-        inRoutine: false
-      },
-      {
-        name: 'Squat',
-        muscleGroup: 'Legs',
-        id: '2',
-        inRoutine: false
-      },
-      {
-        name: 'Deadlift',
-        muscleGroup: 'Back',
-        id: '3',
-        inRoutine: false
-      }
-    ],
-  },
-  {
-    name: 'Pull Day',
-    exercises: [
-      {
-        name: 'Overhead Press',
-        muscleGroup: 'Shoulders',
-        id: '4',
-        inRoutine: false
-      },
-      {
-        name: 'Bicep Curl',
-        muscleGroup: 'Arms',
-        id: '5',
-        inRoutine: false
-      },
-      {
-        name: 'Tricep Extension',
-        muscleGroup: 'Arms',
-        id: '6',
-        inRoutine: false
-      }
-    ],
-  },
-  {
-    name: 'Leg Day',
-    exercises: [
-      {
-        name: 'Lunges',
-        muscleGroup: 'Legs',
-        id: '7',
-        inRoutine: false
-      },
-      {
-        name: 'Plank',
-        muscleGroup: 'Core',
-        id: '8',
-        inRoutine: false
-      },
-      {
-        name: 'Pull-Up',
-        muscleGroup: 'Back',
-        id: '9',
-        inRoutine: false
-      }
-    ],
-  }
-]
+export const routinesList : { name: string; exercises: RoutineExerciseProp[] }[] = [];
 
 const Routines = () => {
   return (

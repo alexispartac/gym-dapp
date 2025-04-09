@@ -4,7 +4,11 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 // import reportWebVitals from './reportWebVitals';
 import '@mantine/core/styles.css';
+import { CookiesProvider } from 'react-cookie';
 import './index.css';
+import { UserProvider } from './context/UserContext';
+import { Buffer } from 'buffer';
+window.Buffer = Buffer;
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,7 +16,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App/>
+      <UserProvider>
+        <CookiesProvider>
+          <App />
+        </CookiesProvider>
+      </UserProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

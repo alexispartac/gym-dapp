@@ -1,16 +1,27 @@
 import React from "react";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import { Button, Container, Group, Modal, MultiSelect, Stack } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { useDispatch } from "react-redux";
+import { modals } from "@mantine/modals";
+import { useDispatch, useSelector } from "react-redux";
+import { useCookies } from "react-cookie";
 import { IconPlus } from "@tabler/icons-react";
-import { AppDispatch } from "./store";
+import { AppDispatch, RootState } from "./store";
 import { addExercise, clearExercises, removeExercise } from "./workoutSlice";
 import { resetVolume } from "./volumeSlice";
 import { resetSets } from "./setsSlice";
 import { ExerciseProp, exercises, ExerciseCategory } from "../Exercises";
-import { WorkoutExercisesProp } from "../Workout";
+import { WorkoutExercisesProp, WorkoutPostProp } from "../Workout";
 import ListOfExercises from "./ListOfExercises";
 import Exercise, { SetProp } from "./Exercise";
+import TransferSolana from "../solana/transfer-sol";
+import { SECRET_KEY } from '../../constants'
+import Reward from "./Reward";
+import { DiscardWorkoutModal, FinishWorkoutModal } from "./WorkoutModals";
+import { v4 as uuidv4 } from 'uuid';
+
+import axios from 'axios'
+import { useUser } from '../../context/UserContext';
 
 const exercisesWorkout = exercises.map(
     (exercise: ExerciseProp) => {
@@ -22,6 +33,7 @@ const exercisesWorkout = exercises.map(
     }
 )
 
+// exercitiile userului din baza de date 
 export const userExercises = exercises.map(
     (exercise: ExerciseProp) => {
         return {
@@ -41,9 +53,15 @@ const WorkoutExercises = (
     { workoutExercises: WorkoutExercisesProp[]; setStatusWorkout: (status: boolean) => void }
 ) => {
     const [selectedExercises, setSelectedExercises] = React.useState<string[]>(['All Muscles']);  // categoriile de exercitii
+    const [exerciseKeys] = React.useState(() => new Map());
     const [opened, { open, close }] = useDisclosure(false);
+    const [loading, setLoading] = React.useState(false); 
     const isMobile = useMediaQuery('(max-width: 50em)');
     const dispatch = useDispatch<AppDispatch>();
+    const sets = useSelector((state: RootState) => state.sets.count);
+    const volume = useSelector((state: RootState) => state.volume.count);
+    const [ cookies ] = useCookies(['PublicKey']);
+    const publicKey = new PublicKey(cookies.PublicKey.public_key);
 
     // lista de exercitii disponibile pentru workout, in care am evidentiat cele care sunt deja in workout
     const [listOfExercisesForWorkout, setListOfExercisesForWorkout] = React.useState<WorkoutExercisesProp[]>(
@@ -117,7 +135,6 @@ const WorkoutExercises = (
     };
 
     // am creiat o cheie pentru a mentine identitatea unica fiecarei componente
-    const [exerciseKeys] = React.useState(() => new Map());
     const getExerciseKey = (exerciseId: string) => {
         if (!exerciseKeys.has(exerciseId)) {
             exerciseKeys.set(exerciseId, Math.random().toString(36));
@@ -125,8 +142,44 @@ const WorkoutExercises = (
         return exerciseKeys.get(exerciseId);
     };
 
-    const handleFinishWorkout = ( exercisesWorkout : WorkoutExercisesProp[] ) => {
+    const { user } = useUser();
+    const handleSaveWorkoutInDB = async( exercisesWorkout : WorkoutExercisesProp[] ) => {
+        const URL = '';
+        const data: WorkoutPostProp = {  
+            id: uuidv4(),
+            userId : user.userId,
+            username: user.username,
+            exercises: exercisesWorkout,
+            date: new Date()
+        };
+        try{
+            const response = axios.post(URL, data);
+            console.log(response);
+        }catch(error){
+            console.log(error);
+        }
+    }
+
+    const handleFinishWorkout = async( exercisesWorkout : WorkoutExercisesProp[] ) => {
         let flag = true;
+        setLoading(true);
+
+        if( exercisesWorkout.length === 0 ){
+            setLoading(false);
+            modals.openContextModal({
+                modal: 'expected',
+                title: 'Finish workout',
+                centered: true,
+                withCloseButton: false,
+                size: 'sm',
+                radius: 'md',
+                innerProps: {
+                    modalBody: 'You have to add at least one exercise to finish the workout!',
+                },
+            });
+            return;
+        }
+        
         exercisesWorkout.forEach( (exercise: WorkoutExercisesProp) =>  
             {
                 const setIsNotFinish = exercise.sets.find( (set: SetProp) => set.done === false )
@@ -134,14 +187,32 @@ const WorkoutExercises = (
                     flag = false;
             }
         )
-        if( !flag )
-            console.log(' Nu poti finaliza workout ul pentru ca ai seturi nefinalizate.');
-        else{
+
+        if( !flag ){
+            setLoading(false);
+            modals.openContextModal({
+                modal: 'expected',
+                title: 'Finish workout',
+                centered: true,
+                withCloseButton: false,
+                size: 'sm',
+                radius: 'md',
+                innerProps: {
+                    modalBody: 'You have to finish all sets to finish the workout!',
+                },
+            });
+        }else{
             // adauga exercitiilt in baza de date a utilizatorului
             // modifica seturile pentru urmatoarele antrenamente
-            //
+            const amount = Reward({ sets, volume });    
+            const senderKeypair : Keypair = Keypair.fromSecretKey(SECRET_KEY);
+            await TransferSolana({ senderKeypair, recipientPubKey: publicKey, amountToSend: amount })
+            setLoading(false);
             handleDiscardWorkout();
             console.log("Congrats! Finish workout!", exercisesWorkout);
+            FinishWorkoutModal();
+            // salvare in baza de date a userului
+
         }
     }
 
@@ -214,20 +285,16 @@ const WorkoutExercises = (
                 variant='outline'
                 color='green'
                 className='flex w-[47.5%] align-start md:pl-[20px] my-[10px] bg-green-700 text-white'
-                onClick={() => {
-                    handleFinishWorkout(workoutExercises);
-                }}
+                onClick={ () => handleFinishWorkout(workoutExercises)}
                 >
-                Finish Workout
+                {loading ? 'Se procesează...' : 'Finish Workout'}
             </Button>
             
             <Button
                 variant='outline'
                 color='red'
                 className='flex w-[47.5%] align-start md:pl-[20px] my-[10px] bg-red-700 text-white'
-                onClick={() => {
-                    handleDiscardWorkout()
-                }}
+                onClick={() => DiscardWorkoutModal({ handleDiscardWorkout })}
                 >
                 Discard Workout
             </Button>

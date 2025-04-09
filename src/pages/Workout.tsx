@@ -10,6 +10,14 @@ export interface WorkoutExercisesProp extends ExerciseProp {
   sets: SetProp[];
 }
 
+export interface WorkoutPostProp {
+  id: string;
+  userId: string;
+  username: string;
+  exercises: WorkoutExercisesProp[];
+  date: Date;
+}
+
 const Workout = () => {
 
   return (

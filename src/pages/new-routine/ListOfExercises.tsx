@@ -42,8 +42,8 @@ const ListOfExercises = (
                       null
                 }
                 <h1 className='w-[80%] flex justify-start p-[10px]' > {exercise.name}</h1>
-                <p className='flex justify-center w-[45px] p-[10px]' onClick={addExercise}> ✔️ </p>
-                <p className='flex justify-center w-[42px] p-[10px]' onClick={deleteExercises}> ❌ </p>
+                <button disabled={isIn} className='flex justify-center w-[45px] p-[10px]' onClick={addExercise}> ✔️ </button>
+                <button disabled={!isIn} className='flex justify-center w-[42px] p-[10px]' onClick={deleteExercises}> ❌ </button>
             </div>
         );
     }
