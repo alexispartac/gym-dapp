@@ -120,20 +120,6 @@ const New = ({data} : {data: any} ) => {
 }
 
 const Home = () => {
-  const { setBalance, setUser } = useUser();
-
-  const [cookies] = useCookies(['PublicKey', 'login']);
-
-  useEffect( () => {
-      if (cookies.PublicKey)
-      {
-          CheckBalance({pubkey: cookies.PublicKey.publicKey}).then( ( balance : number ) => {
-              setBalance(balance);
-          }).catch(error => alert('Sorry, try again later!')); 
-      }
-      if (cookies.login)
-        setUser({...cookies.login, publicKey: cookies.PublicKey.publicKey, isAuthenticated: true } )
-  }, [cookies.PublicKey, cookies.login, setBalance, setUser])
 
   return (
     <Container >

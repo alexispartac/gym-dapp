@@ -1,5 +1,5 @@
 import React from "react";
-import { Keypair } from "@solana/web3.js";
+import { Keypair, PublicKey } from "@solana/web3.js";
 import { Button, Container, Group, Modal, MultiSelect, Stack } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
@@ -11,13 +11,17 @@ import { addExercise, clearExercises, removeExercise } from "./workoutSlice";
 import { resetVolume } from "./volumeSlice";
 import { resetSets } from "./setsSlice";
 import { ExerciseProp, exercises, ExerciseCategory } from "../Exercises";
-import { WorkoutExercisesProp } from "../Workout";
+import { WorkoutExercisesProp, WorkoutPostProp } from "../Workout";
 import ListOfExercises from "./ListOfExercises";
 import Exercise, { SetProp } from "./Exercise";
 import TransferSolana from "../solana/transfer-sol";
 import { SECRET_KEY } from '../../constants'
 import Reward from "./Reward";
 import { DiscardWorkoutModal, FinishWorkoutModal } from "./WorkoutModals";
+import { v4 as uuidv4 } from 'uuid';
+
+import axios from 'axios'
+import { useUser } from '../../context/UserContext';
 
 const exercisesWorkout = exercises.map(
     (exercise: ExerciseProp) => {
@@ -57,7 +61,7 @@ const WorkoutExercises = (
     const sets = useSelector((state: RootState) => state.sets.count);
     const volume = useSelector((state: RootState) => state.volume.count);
     const [ cookies ] = useCookies(['PublicKey']);
-    const publicKey = cookies.PublicKey.publicKey;
+    const publicKey = new PublicKey(cookies.PublicKey.public_key);
 
     // lista de exercitii disponibile pentru workout, in care am evidentiat cele care sunt deja in workout
     const [listOfExercisesForWorkout, setListOfExercisesForWorkout] = React.useState<WorkoutExercisesProp[]>(
@@ -138,6 +142,23 @@ const WorkoutExercises = (
         return exerciseKeys.get(exerciseId);
     };
 
+    const { user } = useUser();
+    const handleSaveWorkoutInDB = async( exercisesWorkout : WorkoutExercisesProp[] ) => {
+        const URL = '';
+        const data: WorkoutPostProp = {  
+            id: uuidv4(),
+            userId : user.userId,
+            username: user.username,
+            exercises: exercisesWorkout,
+            date: new Date()
+        };
+        try{
+            const response = axios.post(URL, data);
+            console.log(response);
+        }catch(error){
+            console.log(error);
+        }
+    }
 
     const handleFinishWorkout = async( exercisesWorkout : WorkoutExercisesProp[] ) => {
         let flag = true;

@@ -1,10 +1,11 @@
 import { Button, Container, Input, Modal, MultiSelect } from "@mantine/core";
 import Exercise from "./Exercise";
 import { exercisesForRoutine, RoutineExerciseProp, RoutineProp, routinesList } from "../Routines";
-import ListOfExercises from "./ListOfExercises";
+ import ListOfExercises from "./ListOfExercises";
 import { useDisclosure } from "@mantine/hooks";
 import React from "react";
 import { modals } from "@mantine/modals";
+import axios from 'axios'
 
 
 const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseProp[], handleClose: () => void } ) => {
@@ -12,7 +13,7 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
   const [routineExercises, setRoutineExercises] = React.useState<RoutineExerciseProp[]>([]);
   const [name, setName] = React.useState<string>('');
   const [selectedExercises, setSelectedExercises] = React.useState<string[]>(['All Muscles']);  // categoriile de exercitii
-
+  const [loading, setLoading] = React.useState<boolean>(false);
   const handleAddExercise = ( exercise : RoutineExerciseProp ) => { 
     setRoutineExercises([...routineExercises, { ...exercise, inRoutine: true}]); 
     exercises.map((ex: RoutineExerciseProp) => ex.id === exercise.id ? ex.inRoutine = true : null );
@@ -23,6 +24,7 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
     exercises.map((ex: RoutineExerciseProp) => ex.id === exercise.id ? ex.inRoutine = false : null );
   }
 
+  const URL = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
   const handleSaveRoutine = (routineExercises: RoutineExerciseProp[]) => {
     if (name === '') {
       modals.openContextModal({
@@ -66,22 +68,38 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
     } else {
       //  inserare in baza de date a utilizatorului
       routinesList.push({ name: name, exercises: routineExercises });
-      //  resetare 
-      exercisesForRoutine.map((ex: RoutineExerciseProp) => ex.inRoutine = false);
-      setRoutineExercises([]);
-      setName('');
-      console.log('Rutina salvata cu succes!');
-      handleClose();
-      modals.openContextModal({
-        modal: 'expected',
-        title: 'Save routine',
-        centered: true,
-        withCloseButton: false,
-        size: 'sm',
-        radius: 'md',
-        innerProps: {
-          modalBody: 'Routine saved successfully!',
-        },
+      //  resetare  
+      setLoading(true);
+      axios.post(URL, 
+        { name, routineExercises },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      .then((response) => {
+        setLoading(false);
+        exercisesForRoutine.map((ex: RoutineExerciseProp) => ex.inRoutine = false);
+        setName('');
+        setRoutineExercises([]);
+        console.log('Rutina salvata cu succes!');
+        handleClose();
+        modals.openContextModal({
+          modal: 'expected',
+          title: 'Save routine',
+          centered: true,
+          withCloseButton: false,
+          size: 'sm',
+          radius: 'md',
+          innerProps: {
+            modalBody: 'Routine saved successfully!',
+          },
+        });
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log(error);
       });
     }
   }
@@ -126,8 +144,8 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
       <Button variant='outline' color='blue' className='w-[100%] my-[10px]' onClick={open}>
         Add a exercise
       </Button>
-      <Button variant='outline' color='white' className='w-[100%] my-[10px] bg-green-600' onClick={() => handleSaveRoutine(routineExercises)}>
-        Create Routine
+      <Button variant='outline' color='green' className='w-[100%] my-[10px] text-white bg-green-600' onClick={() => handleSaveRoutine(routineExercises)}>
+          {loading ? 'Create...' : 'Save'}
       </Button>
     </Container>
   );

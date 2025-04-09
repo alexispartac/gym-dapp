@@ -24,6 +24,7 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
+    "axios": "^1.8.4",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",

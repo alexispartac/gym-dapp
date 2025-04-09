@@ -24,6 +24,9 @@ const RoutinesElements = forwardRef((_props, ref) => {
         <Stack className='py-[20px] overflow-y-auto h-max-[screen]'>
           {/* maxim 6 routines */}
           {
+            routinesList.length === 0 ?
+              <div className='text-center'>No routines yet</div>
+              :
               routinesList.map((routine, index) => (
                 <Routine key={index} routine={routine} />
               ))

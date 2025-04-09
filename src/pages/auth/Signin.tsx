@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import { Button, Checkbox, Group, Stack, TextInput, Text, Alert } from '@mantine/core';
 import { ContextModalProps, modals } from '@mantine/modals';
-
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+import GenerateKepair from '../solana/generate-keypair';
 export interface SigninProp {
     username: string;
     email: string;
     password: string;
     confirmPassword: string;
+}
+
+export interface SigninDBProp {
+    username: string;
+    email: string;
+    password: string;
+    public_key: string;
+    user_id: string;
 }
 
 export const SigninModal = ({ context, id }: ContextModalProps ) => {
@@ -24,7 +34,7 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
         setSignin({ ...signin, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
         if (!signin.username || signin.username.length < 4) {
             setErrorMessage('Username must be at least 8 characters long.');
             return;
@@ -53,11 +63,41 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
         setErrorMessage('');
         setLoading(true);
 
-        setTimeout(() => {
-            console.log('Signin Data:', signin); 
-            setLoading(false);
-            context.closeModal(id); 
-        }, 1000);
+        const URL = 'http://127.0.0.1:8080/signin';
+        const Keypair = await GenerateKepair();
+        try{
+            const data : SigninDBProp = {
+                username: signin.username,
+                email: signin.email,
+                password: signin.password,
+                public_key: Keypair.publicKey.toString(),
+                user_id: uuidv4()
+            }
+            axios.post(URL, data,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            ).then((response) => {
+                console.log(response.data);
+                const { message } = response.data;
+                if (message === 'User already exists') {
+                    setErrorMessage('User already exists');
+                    setLoading(false);
+                    return;
+                }
+                setLoading(false);
+                context.closeModal(id);
+            }).catch((error) => {
+                console.error(error);
+                setErrorMessage('Signin failed. Please try again.');
+                setLoading(false);
+            });
+        }catch(error){
+            console.log(error);
+        }
+
     };
 
     return (

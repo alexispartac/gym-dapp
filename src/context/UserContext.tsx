@@ -2,8 +2,8 @@ import { createContext, useState, useContext } from 'react';
 import { ReactNode } from 'react';
 
 interface User {
-    id: number | null;
-    name: string;
+    userId: string;
+    username: string;
     publicKey: string;
     isAuthenticated: boolean;
 }
@@ -17,8 +17,8 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType>({
     user: {
-        id: null,
-        name: '',
+        userId: '',
+        username: '',
         publicKey: '',
         isAuthenticated: false,
     },
@@ -29,8 +29,8 @@ const UserContext = createContext<UserContextType>({
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User>({
-        id: null,
-        name: '',
+        userId: '',
+        username: '',
         publicKey: '',
         isAuthenticated: false,
     });
