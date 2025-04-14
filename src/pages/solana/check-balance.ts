@@ -10,7 +10,6 @@ import {
 export async function CheckBalance( { pubkey } : {  pubkey : string } ) {
     if (!pubkey)
     {
-        alert("Please connect your wallet");
         return 0;
     }
     const pubkeyObject = new PublicKey(pubkey);

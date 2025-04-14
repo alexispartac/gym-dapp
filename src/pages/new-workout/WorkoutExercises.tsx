@@ -4,14 +4,13 @@ import { Button, Container, Group, Modal, MultiSelect, Stack } from "@mantine/co
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { useDispatch, useSelector } from "react-redux";
-import { useCookies } from "react-cookie";
 import { IconPlus } from "@tabler/icons-react";
 import { AppDispatch, RootState } from "./store";
 import { addExercise, clearExercises, removeExercise } from "./workoutSlice";
 import { resetVolume } from "./volumeSlice";
 import { resetSets } from "./setsSlice";
 import { ExerciseProp, exercises, ExerciseCategory } from "../Exercises";
-import { WorkoutExercisesProp, WorkoutPostProp } from "../Workout";
+import { ExercisePropDB, WorkoutExercisesProp, WorkoutPostProp } from "../Workout";
 import ListOfExercises from "./ListOfExercises";
 import Exercise, { SetProp } from "./Exercise";
 import TransferSolana from "../solana/transfer-sol";
@@ -28,7 +27,7 @@ const exercisesWorkout = exercises.map(
         return {
             ...exercise,
             inWorkout: false,
-            sets: [] 
+            sets: []
         }
     }
 )
@@ -39,9 +38,9 @@ export const userExercises = exercises.map(
         return {
             ...exercise,
             sets: [
-              { setNumber: 1, kg: 5, reps: 20, previous: "3kg x 15", done: false },
-              { setNumber: 2, kg: 6, reps: 18, previous: "3kg x 15", done: false },
-              { setNumber: 3, kg: 7, reps: 15, previous: "3kg x 15", done: false }
+                { set_number: 1, kg: 5, reps: 20, previous: "3kg x 15", done: false },
+                { set_number: 2, kg: 6, reps: 18, previous: "3kg x 15", done: false },
+                { set_number: 3, kg: 7, reps: 15, previous: "3kg x 15", done: false }
             ]
         }
     }
@@ -49,19 +48,23 @@ export const userExercises = exercises.map(
 )
 
 const WorkoutExercises = (
-    { workoutExercises, setStatusWorkout }:
-    { workoutExercises: WorkoutExercisesProp[]; setStatusWorkout: (status: boolean) => void }
+    { workoutExercises, setStatusWorkout, elapsedTimeRef, handleStop }:
+    { 
+        workoutExercises: WorkoutExercisesProp[]; 
+        setStatusWorkout: (status: boolean) => void;
+        elapsedTimeRef: React.MutableRefObject<number>;
+        handleStop: () => void; 
+    }
 ) => {
     const [selectedExercises, setSelectedExercises] = React.useState<string[]>(['All Muscles']);  // categoriile de exercitii
     const [exerciseKeys] = React.useState(() => new Map());
     const [opened, { open, close }] = useDisclosure(false);
-    const [loading, setLoading] = React.useState(false); 
+    const [loading, setLoading] = React.useState(false);
     const isMobile = useMediaQuery('(max-width: 50em)');
     const dispatch = useDispatch<AppDispatch>();
     const sets = useSelector((state: RootState) => state.sets.count);
     const volume = useSelector((state: RootState) => state.volume.count);
-    const [ cookies ] = useCookies(['PublicKey']);
-    const publicKey = new PublicKey(cookies.PublicKey.public_key);
+    const { user } = useUser();
 
     // lista de exercitii disponibile pentru workout, in care am evidentiat cele care sunt deja in workout
     const [listOfExercisesForWorkout, setListOfExercisesForWorkout] = React.useState<WorkoutExercisesProp[]>(
@@ -142,29 +145,45 @@ const WorkoutExercises = (
         return exerciseKeys.get(exerciseId);
     };
 
-    const { user } = useUser();
-    const handleSaveWorkoutInDB = async( exercisesWorkout : WorkoutExercisesProp[] ) => {
-        const URL = '';
-        const data: WorkoutPostProp = {  
-            id: uuidv4(),
-            userId : user.userId,
-            username: user.username,
-            exercises: exercisesWorkout,
-            date: new Date()
-        };
-        try{
-            const response = axios.post(URL, data);
-            console.log(response);
-        }catch(error){
-            console.log(error);
+    const URL = 'http://127.0.0.1:8080/workout/post';
+    const handleSaveWorkoutInDB = async (exercisesWorkout: WorkoutExercisesProp[]) => {
+        if (!user || !user.userInfo || !user.userInfo.userId || !user.userInfo.username) {
+            console.error("User information is missing");
+            return;
         }
-    }
+        const workoutExercises : ExercisePropDB[] = exercisesWorkout.map((exercise: WorkoutExercisesProp) => {
+            const { muscleGroup, sets, name, id } = exercise;
+            return { id: id , name : name , muscle_group : muscleGroup, sets : sets};
+        })
 
-    const handleFinishWorkout = async( exercisesWorkout : WorkoutExercisesProp[] ) => {
+        const workoutPost: WorkoutPostProp = {
+            id: uuidv4(),
+            user_id: user.userInfo.userId,
+            username: user.userInfo.username,
+            exercises: workoutExercises,
+            date: new Date().toDateString(),
+            duration: elapsedTimeRef.current,
+            volume: volume,
+            sets: sets,
+            rewards: Reward({ sets, volume })
+        };
+        try {
+            axios.post(URL, workoutPost, 
+            ).then((response) => {
+                console.log(response);
+            }).catch(() => alert('Connect to the internet!'));
+        } catch (error) {
+            console.error("Failed to save workout in DB:", error);
+            alert("Failed to save workout. Please try again.");
+        }
+    };
+
+    const handleFinishWorkout = async (exercisesWorkout: WorkoutExercisesProp[]) => {
         let flag = true;
         setLoading(true);
+        handleStop();
 
-        if( exercisesWorkout.length === 0 ){
+        if (exercisesWorkout.length === 0) {
             setLoading(false);
             modals.openContextModal({
                 modal: 'expected',
@@ -179,16 +198,15 @@ const WorkoutExercises = (
             });
             return;
         }
-        
-        exercisesWorkout.forEach( (exercise: WorkoutExercisesProp) =>  
-            {
-                const setIsNotFinish = exercise.sets.find( (set: SetProp) => set.done === false )
-                if(setIsNotFinish !== undefined)
-                    flag = false;
-            }
+
+        exercisesWorkout.forEach((exercise: WorkoutExercisesProp) => {
+            const setIsNotFinish = exercise.sets.find((set: SetProp) => set.done === false)
+            if (setIsNotFinish !== undefined)
+                flag = false;
+        }
         )
 
-        if( !flag ){
+        if (!flag) {
             setLoading(false);
             modals.openContextModal({
                 modal: 'expected',
@@ -201,25 +219,22 @@ const WorkoutExercises = (
                     modalBody: 'You have to finish all sets to finish the workout!',
                 },
             });
-        }else{
-            // adauga exercitiilt in baza de date a utilizatorului
+        } else {
             // modifica seturile pentru urmatoarele antrenamente
-            const amount = Reward({ sets, volume });    
-            const senderKeypair : Keypair = Keypair.fromSecretKey(SECRET_KEY);
-            await TransferSolana({ senderKeypair, recipientPubKey: publicKey, amountToSend: amount })
+            const amount = Reward({ sets, volume });
+            const senderKeypair: Keypair = Keypair.fromSecretKey(SECRET_KEY);
+            await TransferSolana({ senderKeypair, recipientPubKey: new PublicKey(user.userInfo.publicKey), amountToSend: amount })
             setLoading(false);
             handleDiscardWorkout();
             console.log("Congrats! Finish workout!", exercisesWorkout);
             FinishWorkoutModal();
-            // salvare in baza de date a userului
-
+            handleSaveWorkoutInDB(exercisesWorkout);
         }
     }
 
     return (
         <Container p={0} className='flex flex-col border-t-[1px] border-black'>
             {
-                // daca nu sunt exercitii in workout ul nostru afisam blocul executat pe true altfel afisam exercitiile 
                 workoutExercises.length === 0 ?
                     <Stack className='flex flex-col items-center justify-center border-t-[1px] border-black'>
                         <IconPlus size={120} color='gray' />
@@ -278,27 +293,26 @@ const WorkoutExercises = (
                 + Add Exercise
             </Button>
 
-            {/* !!!!!! adaugare alerta inainte de a confirma stergerea */}
             <Group>
-                
-            <Button
-                variant='outline'
-                color='green'
-                className='flex w-[47.5%] align-start md:pl-[20px] my-[10px] bg-green-700 text-white'
-                onClick={ () => handleFinishWorkout(workoutExercises)}
+
+                <Button
+                    variant='outline'
+                    color='green'
+                    className='flex w-[47.5%] align-start md:pl-[20px] my-[10px] bg-green-700 text-white'
+                    onClick={() => handleFinishWorkout(workoutExercises)}
                 >
-                {loading ? 'Se procesează...' : 'Finish Workout'}
-            </Button>
-            
-            <Button
-                variant='outline'
-                color='red'
-                className='flex w-[47.5%] align-start md:pl-[20px] my-[10px] bg-red-700 text-white'
-                onClick={() => DiscardWorkoutModal({ handleDiscardWorkout })}
+                    {loading ? 'Se procesează...' : 'Finish Workout'}
+                </Button>
+
+                <Button
+                    variant='outline'
+                    color='red'
+                    className='flex w-[47.5%] align-start md:pl-[20px] my-[10px] bg-red-700 text-white'
+                    onClick={() => DiscardWorkoutModal({ handleDiscardWorkout })}
                 >
-                Discard Workout
-            </Button>
-                </Group>
+                    Discard Workout
+                </Button>
+            </Group>
         </Container>
     );
 }

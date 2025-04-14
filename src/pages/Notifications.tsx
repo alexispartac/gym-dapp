@@ -45,7 +45,7 @@ const Notifications = () => {
   };
 
   return (
-    <Container>
+    <Container className='py-[100px]'>
       {notList.map((nt) => (
         <Notify
           key={nt.title}

@@ -22,7 +22,7 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
 
     const handleSubmit = () => {
         if (!login.username || login.username.length < 8) {
-            setErrorMessage('Username trebuie să aibă cel puțin 4 caractere.');
+            setErrorMessage('Username trebuie să aibă cel puțin 8 caractere.');
             return;
         }
 
@@ -34,7 +34,7 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
         setErrorMessage('');
         setLoading(true);
 
-        const URL = 'http://127.0.0.1:8080/login';
+        const URL = 'http://127.0.0.1:8080/user/login';
         try{
             const data = { username: login.username, password: login.password };
             axios.post(URL, data,
@@ -44,10 +44,9 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
                     },
                 }
             ).then((response) => {
-                console.log(response.data);
-                const { public_key, jwt_token, user_id } = response.data;
-                setUser({ userId: user_id, username: login.username, publicKey: public_key, isAuthenticated: true });
-                setCookie('PublicKey', { public_key }, { path: '/' });
+                type ResponseData = { jwt_token: string; user_data: any };
+                const { jwt_token, user_data } = response.data as ResponseData;
+                setUser({ userInfo: user_data, isAuthenticated: true });
                 setCookie('login', { jwt_token }, { path: '/' });
                 setLoading(false);
                 context.closeModal(id);

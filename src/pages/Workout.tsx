@@ -9,19 +9,30 @@ export interface WorkoutExercisesProp extends ExerciseProp {
   inWorkout: boolean;
   sets: SetProp[];
 }
+ 
+export interface ExercisePropDB {
+  id: string;
+  name: string;
+  muscle_group: string;
+  sets: SetProp[];
+}
 
 export interface WorkoutPostProp {
   id: string;
-  userId: string;
+  user_id: string;
   username: string;
-  exercises: WorkoutExercisesProp[];
-  date: Date;
+  exercises: ExercisePropDB[];
+  date: string;
+  duration: number;
+  volume: number;
+  sets: number;
+  rewards: number;
 }
 
 const Workout = () => {
 
   return (
-    <Container className='flex flex-col gap-5 h-screen'>
+    <Container className='flex flex-col gap-5 h-screen py-[100px]'>
       <Stack>
         <h1 className='text-2xl'> Quick Start </h1>
       </Stack>

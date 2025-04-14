@@ -21,7 +21,7 @@ const getExercisesByCategory = (category: string) => {
 
 const Exercises = () => {
   return (
-    <Container p={0} mb={"50px"}>
+    <Container className='py-[100px]' p={0} mb={"50px"}>
       <br />
       <h1 className='text-3xl md:text-7xl'> Exercises </h1>
       <br />

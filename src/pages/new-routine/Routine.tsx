@@ -32,10 +32,14 @@ const StartRoutine = ({
     openStartRoutine,
     close,
     setOpenStartRoutine,
+    elapsedTimeRef,
+    handleStop
 }: {
     openStartRoutine: boolean;
     close: () => void;
     setOpenStartRoutine: (value: boolean) => void;
+    elapsedTimeRef: React.MutableRefObject<number>;
+    handleStop: () => void;
 }) => {
     const isMobile = useMediaQuery("(max-width: 50em)");
     const exercises = useSelector((state: RootState) => state.workout.exercises);
@@ -69,7 +73,12 @@ const StartRoutine = ({
                             </Stack>
                         </Group>
                         <br />
-                        <WorkoutExercises workoutExercises={exercises} setStatusWorkout={setOpenStartRoutine}/>
+                        <WorkoutExercises 
+                            workoutExercises={exercises} 
+                            setStatusWorkout={setOpenStartRoutine}
+                            elapsedTimeRef={elapsedTimeRef}
+                            handleStop={handleStop}
+                            />
                         <br />
                     </Container>
                 </Modal>
@@ -83,6 +92,20 @@ const Routine = ({ routine }: { routine: RoutineProp }) => {
     const [openInfoRoutine, setOpenInfoRoutine] = React.useState<boolean>(false);
     const [openStartRoutine, setOpenStartRoutine] = React.useState<boolean>(false);
     const dispatch = useDispatch<AppDispatch>();
+    const startTimeRef = React.useRef<number | null>(null); 
+    const elapsedTimeRef = React.useRef(0); 
+
+    const handleStart= () => {
+    startTimeRef.current = Date.now(); 
+    };
+
+    const handleStop = () => {
+    if (startTimeRef.current) {
+        const timePressed = Date.now() - startTimeRef.current; 
+        elapsedTimeRef.current = timePressed; 
+        startTimeRef.current = null; 
+    }
+    };
 
     const handleAddWorkout = () => {
         routine.exercises.forEach((routineExercise: RoutineExerciseProp) => {
@@ -129,13 +152,20 @@ const Routine = ({ routine }: { routine: RoutineProp }) => {
                         onClick={() => {
                             setOpenStartRoutine(true);
                             handleAddWorkout();
+                            handleStart();
                         }}
                     >
                         START
                     </Button>
                 </Stack>
                 <InfoRoutine routine={routine} openInfoRoutine={openInfoRoutine} close={() => setOpenInfoRoutine(false)} />
-                <StartRoutine openStartRoutine={openStartRoutine} setOpenStartRoutine={setOpenStartRoutine} close={() => setOpenStartRoutine(false)} />
+                <StartRoutine 
+                    openStartRoutine={openStartRoutine} 
+                    setOpenStartRoutine={setOpenStartRoutine} 
+                    close={() => setOpenStartRoutine(false)} 
+                    elapsedTimeRef={elapsedTimeRef}
+                    handleStop={handleStop}
+                />
             </Group>
         </Container>
     );

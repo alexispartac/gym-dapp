@@ -68,11 +68,25 @@ const NewWorkout = () => {
   const isMobile = useMediaQuery("(max-width: 50em)");
   const dispatch = useDispatch<AppDispatch>();
 
+  const startTimeRef = React.useRef<number | null>(null); 
+  const elapsedTimeRef = React.useRef(0); 
+
+  const handleStart= () => {
+    startTimeRef.current = Date.now(); 
+  };
+
+  const handleStop = () => {
+    if (startTimeRef.current) {
+      const timePressed = Date.now() - startTimeRef.current; 
+      elapsedTimeRef.current = timePressed; 
+      console.log(`Butonul a fost apăsat timp de: ${elapsedTimeRef.current} milisecunde`);
+      startTimeRef.current = null; 
+    }
+  };
+
   const workoutExercises: WorkoutExercisesProp[] = useSelector(
     (state: RootState) => state.workout.exercises
   );
-
-  
 
   return (
     <Container m={0} p={0}>
@@ -106,6 +120,8 @@ const NewWorkout = () => {
             <WorkoutExercises
                 workoutExercises={workoutExercises}
                 setStatusWorkout={setStatusWorkout}
+                elapsedTimeRef={elapsedTimeRef}
+                handleStop={handleStop}
             />
             <br />
         </Container>
@@ -119,6 +135,7 @@ const NewWorkout = () => {
         onClick={() => {
           open();
           setStatusWorkout(true);
+          handleStart();
         }}
       >
         <Group>

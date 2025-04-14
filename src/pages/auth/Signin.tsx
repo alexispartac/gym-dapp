@@ -63,7 +63,7 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
         setErrorMessage('');
         setLoading(true);
 
-        const URL = 'http://127.0.0.1:8080/signin';
+        const URL = 'http://127.0.0.1:8080/user/signin';
         const Keypair = await GenerateKepair();
         try{
             const data : SigninDBProp = {
@@ -81,7 +81,7 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
                 }
             ).then((response) => {
                 console.log(response.data);
-                const { message } = response.data;
+                const message = (response.data as { message: string }).message;
                 if (message === 'User already exists') {
                     setErrorMessage('User already exists');
                     setLoading(false);

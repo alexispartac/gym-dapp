@@ -20,7 +20,7 @@ export const routinesList : { name: string; exercises: RoutineExerciseProp[] }[]
 
 const Routines = () => {
   return (
-    <Container>
+    <Container className='py-[100px]'>
       <h1 className='text-2xl'> My Routines </h1>
       <br />
       <div className='py-[2rem] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center'>

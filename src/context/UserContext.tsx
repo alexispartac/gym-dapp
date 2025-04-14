@@ -2,9 +2,12 @@ import { createContext, useState, useContext } from 'react';
 import { ReactNode } from 'react';
 
 interface User {
-    userId: string;
-    username: string;
-    publicKey: string;
+    userInfo : {
+        userId: string;
+        username: string;
+        publicKey: string;
+        password: string;
+    }
     isAuthenticated: boolean;
 }
 
@@ -17,9 +20,12 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType>({
     user: {
-        userId: '',
-        username: '',
-        publicKey: '',
+        userInfo : {
+            userId: '',
+            username: '',
+            publicKey: '',
+            password: '',
+        },
         isAuthenticated: false,
     },
     balance: 0,
@@ -29,9 +35,12 @@ const UserContext = createContext<UserContextType>({
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User>({
-        userId: '',
-        username: '',
-        publicKey: '',
+        userInfo : {
+            userId: '',
+            username: '',
+            publicKey: '',
+            password: '',
+        },
         isAuthenticated: false,
     });
     const [balance, setBalance] = useState(0);

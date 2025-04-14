@@ -8,7 +8,7 @@ import { addSetToWorkout, removeSetToWorkout } from "./workoutSlice";
 import { AppDispatch } from "./store";
 
 export interface SetProp {
-  setNumber: number;
+  set_number: number;
   kg: number;
   reps: number;
   previous?: string;
@@ -27,7 +27,7 @@ const Exercise = ({
 
   const addSet = useCallback(() => {
     const newSet = {
-      setNumber: sets.length + 1,
+      set_number: sets.length + 1,
       kg: 0,
       reps: 0,
       done: false,
@@ -36,50 +36,50 @@ const Exercise = ({
   }, [sets]);
 
   const deleteSet = useCallback(
-    (setNumber: number) => {
-      if (sets[setNumber - 1].done) {
+    (set_number: number) => {
+      if (sets[set_number - 1].done) {
         dispatch(removeOneSet());
-        dispatch(removeVolume(sets[setNumber - 1].kg * sets[setNumber - 1].reps));
+        dispatch(removeVolume(sets[set_number - 1].kg * sets[set_number - 1].reps));
       }
       
-      const findSet = sets.find((set) => set.setNumber === setNumber);
+      const findSet = sets.find((set) => set.set_number === set_number);
       if (findSet) {
-        dispatch(removeSetToWorkout({ id: exercise.id, setNumber: findSet.setNumber }));
+        dispatch(removeSetToWorkout({ id: exercise.id, set_number: findSet.set_number }));
       }
       
-      const updatedSets = sets.filter((set) => set.setNumber !== setNumber);
-      setSets(updatedSets.map((set, index) => ({ ...set, setNumber: index + 1 })));
+      const updatedSets = sets.filter((set) => set.set_number !== set_number);
+      setSets(updatedSets.map((set, index) => ({ ...set, set_number: index + 1 })));
     },
     [dispatch, exercise.id, sets]
   );
 
   const doneSet = useCallback(
-    (setNumber: number) => {
-      const targetSet = sets[setNumber - 1];
+    (set_number: number) => {
+      const targetSet = sets[set_number - 1];
       let updatedSets;
 
       if (targetSet.done) {
 
         updatedSets = sets.map((set) =>
-          set.setNumber === setNumber ? { ...set, done: false } : set
+          set.set_number === set_number ? { ...set, done: false } : set
         );
         
         dispatch(removeVolume(targetSet.kg * targetSet.reps));
         dispatch(removeOneSet());
         
-        const findSet = updatedSets.find((set) => set.setNumber === setNumber);
+        const findSet = updatedSets.find((set) => set.set_number === set_number);
         if (findSet) {
-          dispatch(removeSetToWorkout({ setNumber: findSet.setNumber, id: exercise.id }));
+          dispatch(removeSetToWorkout({ set_number: findSet.set_number, id: exercise.id }));
         }
       } else {
         updatedSets = sets.map((set) =>
-          set.setNumber === setNumber ? { ...set, done: true } : set
+          set.set_number === set_number ? { ...set, done: true } : set
         );
         
         dispatch(addVolume(targetSet.kg * targetSet.reps));
         dispatch(addOneSet());
         
-        const findSet = updatedSets.find((set) => set.setNumber === setNumber);
+        const findSet = updatedSets.find((set) => set.set_number === set_number);
         if (findSet) {
           dispatch(addSetToWorkout({ id: exercise.id, set: findSet }));
         }
@@ -91,10 +91,10 @@ const Exercise = ({
   );
 
   const handleInputChange = useCallback(
-    (e: any, setNumber: number) => {
+    (e: any, set_number: number) => {
       setSets(
         sets.map((set) =>
-          set.setNumber === setNumber
+          set.set_number === set_number
             ? { ...set, [e.target.name]: parseInt(e.target.value) }
             : set
         )
@@ -121,11 +121,11 @@ const Exercise = ({
       sets.map((set) => (
         <div
           className={`flex flex-row ${
-            set.setNumber % 2 === 1 && !set.done ? "bg-gray-300" : ""
+            set.set_number % 2 === 1 && !set.done ? "bg-gray-300" : ""
           } ${set.done ? "bg-green-300" : ""}`}
-          key={set.setNumber}
+          key={set.set_number}
         >
-          <p className="flex justify-center w-[45px] p-[10px]">{set.setNumber}</p>
+          <p className="flex justify-center w-[45px] p-[10px]">{set.set_number}</p>
           <p className="flex justify-center w-[100px] p-[10px]">{set.previous}</p>
           <p className="w-[40px] p-[10px]">
             <input
@@ -133,7 +133,7 @@ const Exercise = ({
               disabled={set.done}
               className="w-[25px] bg-transparent"
               placeholder={`${set.kg}`}
-              onChange={(e) => handleInputChange(e, set.setNumber)}
+              onChange={(e) => handleInputChange(e, set.set_number)}
             />
           </p>
           <p className="w-[60px] p-[10px]">
@@ -142,19 +142,19 @@ const Exercise = ({
               disabled={set.done}
               className="w-[25px] bg-transparent"
               placeholder={`${set.reps}`}
-              onChange={(e) => handleInputChange(e, set.setNumber)}
+              onChange={(e) => handleInputChange(e, set.set_number)}
             />
           </p>
           <Button
             disabled={set.kg === 0 || set.reps === 0}
             className="my-auto w-[30px] h-[30px] p-[5px] ml-[5px] bg-green-200"
-            onClick={() => doneSet(set.setNumber)}
+            onClick={() => doneSet(set.set_number)}
           >
             ✔️
           </Button>
           <Button
             className="my-auto w-[30px] h-[30px] p-[5px] ml-[13px] bg-red-200"
-            onClick={() => deleteSet(set.setNumber)}
+            onClick={() => deleteSet(set.set_number)}
           >
             ❌
           </Button>
