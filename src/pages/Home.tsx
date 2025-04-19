@@ -1,14 +1,10 @@
 import React from 'react';
 import axios from 'axios';
-import { Container } from '@mantine/core';
-import {
-  HStack,
-  Skeleton,
-  SkeletonText,
-  Stack,
-} from "@chakra-ui/react";
+import { Container, Group, Skeleton, Stack } from '@mantine/core';
 import { useUser } from '../context/UserContext';
 import { WorkoutPostProp } from './Workout';
+import { modals } from '@mantine/modals';
+import { SkeletonText } from '@chakra-ui/react';
 
 const Balance = () => {
   const { balance } = useUser();
@@ -23,12 +19,12 @@ const Balance = () => {
 
 const SkeletonPost = () => {
   return (
-    <Stack gap="6" maxW="3xl" width="full">
-      <HStack width="full">
+    <Stack gap="6" maw="3xl" w="full">
+      <Group w="full">
         <SkeletonText noOfLines={2} />
         <SkeletonText noOfLines={2} />
         <SkeletonText noOfLines={2} />
-      </HStack>
+      </Group>
       <Skeleton height="200px" />
     </Stack>
   );
@@ -41,10 +37,27 @@ const formatDuration = (duration: number) => {
   return `${hours}h ${minutes}m ${seconds}s`;
 };
 
-const Post = ({ workout }: { workout: WorkoutPostProp }) => {
+
+
+const Post = ({ workout, onDelete }: { workout: WorkoutPostProp, onDelete: (id: string) => void }) => {
+  const openDeleteModal = () =>
+    modals.openConfirmModal({
+      title: 'Delete your workout',
+      centered: true,
+      children: (
+        <h1>
+          Are you sure you want to delete? This action is destructive.
+        </h1>
+      ),
+      labels: { confirm: 'Delete workout', cancel: "No don't delete it" },
+      confirmProps: { color: 'red', variant: 'outline' },
+      onCancel: () => console.log('Cancel'),
+      onConfirm: () => onDelete(workout.id),
+    });
+
   return (
     <div className="w-3xl p-6 my-6 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-      {/* Header Section */}
+
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">{workout.username}</h2>
         <span className="text-sm text-gray-500">
@@ -52,12 +65,11 @@ const Post = ({ workout }: { workout: WorkoutPostProp }) => {
         </span>
       </div>
 
-      {/* Exercises Section */}
       <div className="mb-6">
         <h3 className="text-xl font-semibold text-gray-700">Exercises:</h3>
         <ul className="list-disc list-inside mt-2 text-gray-600">
           {workout.exercises.map((exercise, index) => (
-            index < 3 && ( // Display only the first 3 exercises
+            index < 3 && ( 
               <li key={exercise.id}>
                 <span className="font-medium">{exercise.name}</span> - {exercise.muscle_group}
               </li>
@@ -66,7 +78,6 @@ const Post = ({ workout }: { workout: WorkoutPostProp }) => {
         </ul>
       </div>
 
-      {/* Stats Section */}
       <div className="grid grid-cols-2 gap-4 mt-6">
         <div className="text-gray-700">
           <p>
@@ -85,6 +96,15 @@ const Post = ({ workout }: { workout: WorkoutPostProp }) => {
           </p>
         </div>
       </div>
+
+      <div className="mt-6">
+        <button
+          className="px-4 py-2 text-white bg-red-600 rounded hover:bg-red-700"
+          onClick={openDeleteModal}
+        >
+          Delete Workout
+        </button>
+      </div>
     </div>
   );
 };
@@ -94,6 +114,8 @@ const Home = () => {
   const { user } = useUser();
 
   const URL = `http://127.0.0.1:8080/workout/get/${user.userInfo.userId}`;
+  const deleteURL = `http://127.0.0.1:8080/workout/delete`;
+
   React.useEffect(() => {
     const fetchWorkouts = async () => {
       if (!user || !user.userInfo || !user.userInfo.userId) {
@@ -106,8 +128,6 @@ const Home = () => {
             'Content-Type': 'application/json',
           },
         });
-
-        // Reverse the array to display the latest workout first
         const reversedWorkouts = response.data.reverse();
         setWorkouts(reversedWorkouts);
       } catch (error) {
@@ -119,13 +139,27 @@ const Home = () => {
     fetchWorkouts();
   }, [URL, user]);
 
+  async function DeleteWorkout(id: string){
+    try {
+      await axios.delete(`${deleteURL}/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setWorkouts((prevWorkouts) => prevWorkouts.filter((workout) => workout.id !== id));
+    } catch (error) {
+      console.error("Failed to delete workout:", error);
+      alert("Failed to delete workout. Please try again.");
+    }
+  };
+
   return (
     <Container className='py-[100px]'>
       <Balance />
       <Container>
         {workouts.length > 0 ? (
           workouts.map((workout: WorkoutPostProp) => (
-            <Post key={workout.id} workout={workout} />
+            <Post key={workout.id} workout={workout} onDelete={DeleteWorkout} />
           ))
         ) : (
           <Stack my={"2rem"}>

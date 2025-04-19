@@ -1,13 +1,23 @@
 import { forwardRef, useImperativeHandle } from 'react'
 import { Container, Stack, Modal } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks';
-import { routinesList } from '../Routines';
 import Routine from './Routine';
+import { RoutineProp } from '../Routines';
+import React from 'react';
 
 
-const RoutinesElements = forwardRef((_props, ref) => {
+interface RoutinesElementsProps {
+  routinesList: RoutineProp[];
+  setRoutinesList: React.Dispatch<React.SetStateAction<RoutineProp[]>>;
+}
+
+interface RoutinesElementsHandle {
+  open: () => void;
+  close: () => void;
+}
+
+const RoutinesElements = forwardRef<RoutinesElementsHandle, RoutinesElementsProps>(({ routinesList, setRoutinesList }, ref) => {
   const [opened, { open, close }] = useDisclosure(false);
-
   useImperativeHandle(ref, () => ({
     open,
     close,
@@ -19,7 +29,7 @@ const RoutinesElements = forwardRef((_props, ref) => {
       <Modal 
         opened={opened} 
         onClose={close}
-        title='Routines'
+        title="Routines"
         >
         <Stack className='py-[20px] overflow-y-auto h-max-[screen]'>
           {/* maxim 6 routines */}
@@ -28,7 +38,7 @@ const RoutinesElements = forwardRef((_props, ref) => {
               <div className='text-center'>No routines yet</div>
               :
               routinesList.map((routine, index) => (
-                <Routine key={index} routine={routine} />
+                <Routine key={index} routine={routine} setRoutinesList={setRoutinesList} />
               ))
           }
         </Stack>

@@ -13,7 +13,7 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
     const [login, setLogin] = useState({ username: '', password: '' }); 
     const [errorMessage, setErrorMessage] = useState(''); 
     const [loading, setLoading] = useState(false); 
-    const [, setCookie] = useCookies(['PublicKey', 'login']); 
+    const [, setCookie] = useCookies(['login']); 
     const { setUser } = useUser();
 
     const handleChange = (e : any) => {
@@ -52,8 +52,8 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
                 context.closeModal(id);
             }).catch((error) => {
                 console.error(error);
-                setErrorMessage('Login failed. Please try again.');
                 setLoading(false);
+                setErrorMessage('Login failed. Please try again.');
             });
         }catch(error){
             console.log(error);
@@ -110,7 +110,7 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
                     variant="outline"
                     onClick={handleSubmit}
                 >
-                    {loading ? 'Se procesează...' : 'Submit'}
+                    {loading ? 'Loading...' : 'Submit'}
                 </Button>
             </Group>
         </Stack>

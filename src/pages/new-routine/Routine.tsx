@@ -7,6 +7,8 @@ import { Sets, Timer, Volume } from "../new-workout/NewWorkout";
 import { addExercise, clearExercises } from "../new-workout/workoutSlice";
 import { RoutineExerciseProp, RoutineProp } from "../Routines";
 import { AppDispatch, RootState } from "../new-workout/store";
+import { modals } from "@mantine/modals";
+import axios from 'axios'
 
 
 const InfoRoutine = ({ routine, openInfoRoutine, close }: { routine: RoutineProp; openInfoRoutine: boolean; close: () => void }) => {
@@ -88,7 +90,7 @@ const StartRoutine = ({
 };
 
 
-const Routine = ({ routine }: { routine: RoutineProp }) => {
+const Routine = ({ routine, setRoutinesList }: { routine: RoutineProp, setRoutinesList : React.Dispatch<React.SetStateAction<RoutineProp[]>> }) => {
     const [openInfoRoutine, setOpenInfoRoutine] = React.useState<boolean>(false);
     const [openStartRoutine, setOpenStartRoutine] = React.useState<boolean>(false);
     const dispatch = useDispatch<AppDispatch>();
@@ -115,9 +117,37 @@ const Routine = ({ routine }: { routine: RoutineProp }) => {
             dispatch(addExercise({...rest, inWorkout: true, sets: userExercise.sets}));
         });
     }
+    const deleteURL = `http://127.0.0.1:8080/routine/delete`;
+    async function DeleteRoutine(id: string){
+        try {
+          await axios.delete(`${deleteURL}/${id}`, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          setRoutinesList((prevRoutines) => prevRoutines.filter((routine) => routine.id !== id));
+        } catch (error) {
+          console.error("Failed to delete workout:", error);
+          alert("Failed to delete workout. Please try again.");
+        }
+      };
+
+    const handleDeleteRoutine = () => {
+        modals.openConfirmModal({
+            title: "Delete Routine",
+            centered: true,
+            children: (
+                <p>Are you sure you want to delete this routine? This action cannot be undone.</p>
+            ),
+            labels: { confirm: "Delete", cancel: "Cancel" },
+            confirmProps: { color: 'red', variant: 'outline' },
+            onCancel: () => console.log("Cancel"),
+            onConfirm: () => DeleteRoutine(routine.id),
+        });
+    };
 
     return (
-        <Container className="w-full h-[120px] bg-gray-100 py-[10px] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center">
+        <Container className="w-full  bg-gray-100 py-[10px] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center">
             <Group>
                 <Stack gap={0.5} className="w-[45%]">
                     <h1 className="font-medium">{routine.name}</h1>
@@ -156,6 +186,16 @@ const Routine = ({ routine }: { routine: RoutineProp }) => {
                         }}
                     >
                         START
+                    </Button>
+                    <Button
+                        variant="outline"
+                        color="red"
+                        className="bg-red-500 text-white w-full my-[5px]"
+                        onClick={() => {
+                            handleDeleteRoutine();
+                        }}
+                    >
+                        DELETE
                     </Button>
                 </Stack>
                 <InfoRoutine routine={routine} openInfoRoutine={openInfoRoutine} close={() => setOpenInfoRoutine(false)} />

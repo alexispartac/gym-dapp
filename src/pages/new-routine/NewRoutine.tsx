@@ -1,19 +1,24 @@
+import React from "react";
 import { Button, Container, Input, Modal, MultiSelect } from "@mantine/core";
 import Exercise from "./Exercise";
-import { exercisesForRoutine, RoutineExerciseProp, RoutineProp, routinesList } from "../Routines";
+import { exercisesForRoutine, RoutineExerciseProp, RoutineProp } from "../Routines";
  import ListOfExercises from "./ListOfExercises";
 import { useDisclosure } from "@mantine/hooks";
-import React from "react";
 import { modals } from "@mantine/modals";
+import { useUser } from "../../context/UserContext";
 import axios from 'axios'
+import { v4 as uuidv4 } from 'uuid'
 
 
-const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseProp[], handleClose: () => void } ) => {
+const NewRoutine = ( 
+  { exercises, handleClose, routinesList, setRoutinesList } : 
+  { exercises : RoutineExerciseProp[], handleClose: () => void, routinesList : RoutineProp[], setRoutinesList: React.Dispatch<React.SetStateAction<RoutineProp[]>> } ) => {
   const [opened, { open, close }] = useDisclosure(false);
   const [routineExercises, setRoutineExercises] = React.useState<RoutineExerciseProp[]>([]);
   const [name, setName] = React.useState<string>('');
   const [selectedExercises, setSelectedExercises] = React.useState<string[]>(['All Muscles']);  // categoriile de exercitii
   const [loading, setLoading] = React.useState<boolean>(false);
+  const { user } = useUser();
   const handleAddExercise = ( exercise : RoutineExerciseProp ) => { 
     setRoutineExercises([...routineExercises, { ...exercise, inRoutine: true}]); 
     exercises.map((ex: RoutineExerciseProp) => ex.id === exercise.id ? ex.inRoutine = true : null );
@@ -24,7 +29,8 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
     exercises.map((ex: RoutineExerciseProp) => ex.id === exercise.id ? ex.inRoutine = false : null );
   }
 
-  const URL = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+  const URL = 'http://127.0.0.1:8080/routine/post';
+
   const handleSaveRoutine = (routineExercises: RoutineExerciseProp[]) => {
     if (name === '') {
       modals.openContextModal({
@@ -66,12 +72,20 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
       });
       return;
     } else {
-      //  inserare in baza de date a utilizatorului
-      routinesList.push({ name: name, exercises: routineExercises });
-      //  resetare  
       setLoading(true);
+      // adaugare in baza de date
+      const exercises = routineExercises.map(exercise => {
+          const { id, name, muscleGroup } = exercise;
+          return { id: id, name : name, muscle_group: muscleGroup, sets : [] }
+        }
+      )
       axios.post(URL, 
-        { name, routineExercises },
+        {
+          id: uuidv4(),
+          user_id: user.userInfo.userId,
+          name: name,
+          exercises: exercises
+        },
         {
           headers: {
             'Content-Type': 'application/json',
@@ -83,7 +97,7 @@ const NewRoutine = ( { exercises, handleClose } : { exercises : RoutineExerciseP
         exercisesForRoutine.map((ex: RoutineExerciseProp) => ex.inRoutine = false);
         setName('');
         setRoutineExercises([]);
-        console.log('Rutina salvata cu succes!');
+        console.log(response.data);
         handleClose();
         modals.openContextModal({
           modal: 'expected',
