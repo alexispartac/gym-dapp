@@ -114,6 +114,13 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
                 placeholder="Username"
                 data-autofocus
                 onChange={handleChange}
+                classNames={
+                    {
+                        input: "bg-neutral-800 text-white border-neutral-700 focus:border-blue-500 focus:ring-blue-500",
+                        label: "text-white",
+                        error: "text-red-500",
+                    }
+                }
             />
 
             <TextInput
@@ -121,6 +128,13 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
                 label="Email"
                 placeholder="Email"
                 onChange={handleChange}
+                classNames={
+                    {
+                        input: "bg-neutral-800 text-white border-neutral-700 focus:border-blue-500 focus:ring-blue-500",
+                        label: "text-white",
+                        error: "text-red-500",
+                    }
+                }
             />
 
             <TextInput
@@ -129,6 +143,13 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
                 placeholder="Password"
                 type="password"
                 onChange={handleChange}
+                classNames={
+                    {
+                        input: "bg-neutral-800 text-white border-neutral-700 focus:border-blue-500 focus:ring-blue-500",
+                        label: "text-white",
+                        error: "text-red-500",
+                    }
+                }
             />
 
             <TextInput
@@ -137,12 +158,26 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
                 placeholder="Confirm Password"
                 type="password"
                 onChange={handleChange}
+                classNames={
+                    {
+                        input: "bg-neutral-800 text-white border-neutral-700 focus:border-blue-500 focus:ring-blue-500",
+                        label: "text-white",
+                        error: "text-red-500",
+                    }
+                }
             />
 
             <Checkbox
                 onChange={(e) => setChecked(e.target.checked)}
                 py="3px"
                 label="By signing up you agree to our terms and conditions"
+                classNames={
+                    {
+                        input: "bg-neutral-800 text-white border-neutral-700 focus:border-blue-500 focus:ring-blue-500",
+                        label: "text-white",
+                        error: "text-red-500",
+                    }
+                }
             />
 
             <Text>

@@ -192,6 +192,12 @@ const WorkoutExercises = (
                 withCloseButton: false,
                 size: 'sm',
                 radius: 'md',
+                classNames: {
+                    content: 'bg-neutral-800 text-white',
+                    header: 'bg-neutral-800 text-white indent-1',
+                    title: 'text-white',
+                    close: 'text-white bg-neutral-800 hover:bg-neutral-700',
+                },
                 innerProps: {
                     modalBody: 'You have to add at least one exercise to finish the workout!',
                 },
@@ -215,6 +221,12 @@ const WorkoutExercises = (
                 withCloseButton: false,
                 size: 'sm',
                 radius: 'md',
+                classNames: {
+                    content: 'bg-neutral-800 text-white',
+                    header: 'bg-neutral-800 text-white indent-1',
+                    title: 'text-white',
+                    close: 'text-white bg-neutral-800 hover:bg-neutral-700',
+                },
                 innerProps: {
                     modalBody: 'You have to finish all sets to finish the workout!',
                 },
@@ -233,12 +245,12 @@ const WorkoutExercises = (
     }
 
     return (
-        <Container p={0} className='flex flex-col border-t-[1px] border-black'>
+        <Container p={0} className='flex flex-col border-t-[1px] border-black bg-gray-100 dark:bg-neutral-800 dark:border-neutral-700'>
             {
                 workoutExercises.length === 0 ?
                     <Stack className='flex flex-col items-center justify-center border-t-[1px] border-black'>
                         <IconPlus size={120} color='gray' />
-                        <h1 className='text-2xl font-bold text-gray-800' > Get Started </h1>
+                        <h1 className='text-2xl font-bold text-gray-800 dark:text-white' > Get Started </h1>
                         <p> Add a exercise to start your workout </p>
                     </Stack>
                     :
@@ -260,17 +272,31 @@ const WorkoutExercises = (
                     transitionProps={{ transition: 'fade-up', duration: 700 }}
                     title='Exercises' // ﹀
                     padding={20}
-                    className='text-md'
+                    classNames={{
+                        content: "bg-neutral-800 text-white", 
+                        header: "bg-neutral-800 text-white",
+                        title: "text-white",
+                        close: "text-white bg-neutral-800 hover:bg-neutral-700",
+                      }}
+                    closeOnClickOutside={false}
                 >
                     <Container>
                         <Stack>
                             <MultiSelect
-                                placeholder="Pick value"
+                                placeholder="Select the muscle group"
                                 defaultValue={['All Muscles']}
-                                clearable
-                                value={selectedExercises}
                                 onChange={setSelectedExercises}
                                 data={ExerciseCategory}
+                                clearable
+                                searchable={true}
+                                nothingFoundMessage="No options"
+                                classNames={{
+                                    input: 'bg-neutral-800 text-white',
+                                    dropdown: 'bg-neutral-800 text-white',
+                                    label: 'text-white',
+                                    option: 'bg-neutral-800 text-white hover:bg-neutral-700',
+                                    inputField: 'bg-neutral-800 text-white',
+                                }}
                             />
                         </Stack>
                     </Container>

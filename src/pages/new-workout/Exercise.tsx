@@ -92,6 +92,9 @@ const Exercise = ({
 
   const handleInputChange = useCallback(
     (e: any, set_number: number) => {
+      if (e.target.value > 100) {
+        e.target.value = 100;
+      }
       setSets(
         sets.map((set) =>
           set.set_number === set_number
@@ -121,39 +124,49 @@ const Exercise = ({
       sets.map((set) => (
         <div
           className={`flex flex-row ${
-            set.set_number % 2 === 1 && !set.done ? "bg-gray-300" : ""
-          } ${set.done ? "bg-green-300" : ""}`}
+            set.set_number % 2 === 1 && !set.done ? "bg-gray-300 dark:bg-neutral-600" : ""
+          } ${set.done ? "bg-green-300 dark:bg-green-600" : ""}`}
           key={set.set_number}
         >
-          <p className="flex justify-center w-[45px] p-[10px]">{set.set_number}</p>
-          <p className="flex justify-center w-[100px] p-[10px]">{set.previous}</p>
-          <p className="w-[40px] p-[10px]">
+          <p className="flex justify-start indent-2 w-[50px] p-[10px]">{set.set_number}</p>
+          <p className="flex justify-start indent-1 w-[100px] p-[10px]">{set.previous}</p>
+          <p className="w-[40px] p-[10px] px-[4px] indent-1">
             <input
               name="kg"
               disabled={set.done}
-              className="w-[25px] bg-transparent"
+              className="w-[42px] bg-transparent"
               placeholder={`${set.kg}`}
+              type="number"
+              value={set.kg}
+              min={0}
+              max={100}
+              maxLength={3}
               onChange={(e) => handleInputChange(e, set.set_number)}
             />
           </p>
-          <p className="w-[60px] p-[10px]">
+          <p className="w-[60px] p-[10px] px-[4px] indent-2">
             <input
               name="reps"
               disabled={set.done}
-              className="w-[25px] bg-transparent"
+              type="number"
+              min={0}
+              max={100}
+              maxLength={3}
+              value={set.reps}
+              className="w-[42px] bg-transparent"
               placeholder={`${set.reps}`}
               onChange={(e) => handleInputChange(e, set.set_number)}
             />
           </p>
           <Button
             disabled={set.kg === 0 || set.reps === 0}
-            className="my-auto w-[30px] h-[30px] p-[5px] ml-[5px] bg-green-200"
+            className="my-auto w-[42px] p-[10px] mr-1 bg-green-200 dark:bg-green-600 dark:hover:bg-green-300"
             onClick={() => doneSet(set.set_number)}
           >
             ✔️
           </Button>
           <Button
-            className="my-auto w-[30px] h-[30px] p-[5px] ml-[13px] bg-red-200"
+            className="my-auto w-[42px] p-[10px] bg-red-200 dark:bg-red-600 dark:hover:bg-red-300"
             onClick={() => deleteSet(set.set_number)}
           >
             ❌
@@ -169,7 +182,7 @@ const Exercise = ({
         <h3 className="text-xl"> {exercise.name} </h3>
         <input
           placeholder="Add notes here..."
-          className="font-serif italic color-#aaa p-1 my-1"
+          className="font-serif italic color-#aaa p-1 my-1 dark:bg-neutral-800"
         />
       </div>
       <div className="w-full">
@@ -181,12 +194,14 @@ const Exercise = ({
           <p className="flex justify-center w-[45px] p-[10px]">✔️</p>
           <p className="flex justify-center w-[42px] p-[10px]">❌</p>
         </div>
-        <div>{renderSetRow}</div>
+        <div className="w-full">
+          {renderSetRow}
+        </div>
       </div>
       <Button
         variant="outline"
-        color="black"
-        className="flex w-full align-start md:pl-[50px] my-[10px]"
+        color="gray"
+        className="flex w-full align-start md:pl-[50px] my-[10px] dark:bg-neutral-500 shadow-sm shadow-gray-50 dark:text-white"
         onClick={addSet}
       >
         + Add Set
@@ -195,7 +210,7 @@ const Exercise = ({
       <Button
         variant="outline"
         color="red"
-        className="flex w-full align-start md:pl-[50px] my-[10px]"
+        className="flex w-full align-start md:pl-[50px] my-[10px] text-white dark:bg-red-700"
         onClick={() => handleDelete(exercise)}
       >
         - Delete Exercise

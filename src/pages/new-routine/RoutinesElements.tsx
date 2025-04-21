@@ -23,19 +23,24 @@ const RoutinesElements = forwardRef<RoutinesElementsHandle, RoutinesElementsProp
     close,
   }));
 
-
   return (
     <Container>
       <Modal 
         opened={opened} 
         onClose={close}
         title="Routines"
+        classNames={{
+          content: "bg-neutral-900 text-white", 
+          header: "bg-neutral-800 text-white",
+          title: "text-white",
+          close: "text-white bg-neutral-800 hover:bg-neutral-700",
+        }}
         >
-        <Stack className='py-[20px] overflow-y-auto h-max-[screen]'>
+        <Stack className='py-[20px] overflow-y-auto h-max-[screen] dark:bg-neutral-900'>
           {/* maxim 6 routines */}
           {
             routinesList.length === 0 ?
-              <div className='text-center'>No routines yet</div>
+              <div className='text-center dark:bg-neutral-800'>No routines yet</div>
               :
               routinesList.map((routine, index) => (
                 <Routine key={index} routine={routine} setRoutinesList={setRoutinesList} />

@@ -9,8 +9,21 @@ interface NotifyProp {
 
 const Notify = function Notify({ nt, onClose }: { nt: NotifyProp; onClose: () => void }) {
   return (
-    <Notification title={nt.title} className="my-[10px]" onClose={onClose}>
-      {nt.message}
+    <Notification 
+      title={nt.title} 
+      onClose={onClose}
+      my={'0.5rem'}
+      classNames={{
+        root: "dark:bg-neutral-800",
+        title: "text-neutral-200",
+        closeButton: "text-neutral-200 dark:hover:bg-neutral-700",
+        description: "text-neutral-200",
+        icon: "text-neutral-200",
+        body: "text-neutral-200",
+        loader: "text-neutral-200",
+      }}
+    >
+    {nt.message}
     </Notification>
   );
 };
@@ -45,7 +58,7 @@ const Notifications = () => {
   };
 
   return (
-    <Container className='py-[100px]'>
+    <Container p={0} m={0} w={"100%"} className='flex flex-col align-center' >
       {notList.map((nt) => (
         <Notify
           key={nt.title}

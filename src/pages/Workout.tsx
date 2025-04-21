@@ -61,13 +61,16 @@ const Workout = () => {
   }, [URL, user]);
 
   return (
-    <Container className='flex flex-col gap-5 h-screen py-[100px]'>
+    <Container w={'100%'} h={'100%'} className='dark:bg-neutral-900'>
       <Stack>
-        <h1 className='text-2xl'> Quick Start </h1>
+        <h1 className='text-2xl dark:text-white'> Quick Start </h1>
       </Stack>
+      <br />
       <NewWorkout />
-      <h1 className='my-[5px] text-2xl'> Start a routine</h1>
-      <Container m={0} className='py-[1rem] px-[1rem] rounded-md shadow-md border-[1px]'>
+      <br />
+      <h1 className='my-[5px] text-2xl dark:text-white'> Start a Routine</h1>
+      <br />
+      <Container m={0} className='py-[1rem] px-[1rem] rounded-md shadow-md border-[1px] dark:border-neutral-700 flex-col items-center text-black dark:text-white'>
       <RoutineContainer 
           routinesList={routinesList}
           setRoutinesList={setRoutinesList}

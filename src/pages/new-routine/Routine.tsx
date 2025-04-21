@@ -14,11 +14,21 @@ import axios from 'axios'
 const InfoRoutine = ({ routine, openInfoRoutine, close }: { routine: RoutineProp; openInfoRoutine: boolean; close: () => void }) => {
     return (
         <Container>
-            <Modal opened={openInfoRoutine} onClose={close} title={routine.name}>
+            <Modal 
+                opened={openInfoRoutine} 
+                onClose={close} 
+                title={routine.name}
+                classNames={{
+                    content: "bg-neutral-800 text-white", 
+                    header: "bg-neutral-800 text-white",
+                    title: "text-white",
+                    close: "text-white bg-neutral-800 hover:bg-neutral-700",
+                }}
+                >
                 {routine.exercises.map((exercise) => (
                     <div
                         key={exercise.id}
-                        className="flex flex-row my-[7px] mx-[2px] shadow-sm shadow-gray-400"
+                        className="flex flex-row my-[7px] mx-[2px] dark:bg-neutral-700 dark:text-white"
                     >
                         <h1 className="w-[80%] flex justify-start p-[10px]">
                             {exercise.name}
@@ -61,8 +71,14 @@ const StartRoutine = ({
                     transitionProps={{ transition: "fade-up", duration: 700 }}
                     title="Log Workout"
                     padding={7}
+                    classNames={{
+                        content: "bg-neutral-800 text-white", 
+                        header: "bg-neutral-800 text-white",
+                        title: "text-white",
+                        close: "text-white bg-neutral-800 hover:bg-neutral-700",
+                      }}
                 >
-                    <Container className="bg-white shadow-xl">
+                    <Container className="w-full bg-gray-100 py-[10px] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center dark:bg-neutral-800 dark:border-neutral-700 ">
                         <Group className="grid grid-cols-3 gap-4 py-[5px] font-light">
                             <Stack gap={0}>
                                 <Timer />
@@ -139,15 +155,22 @@ const Routine = ({ routine, setRoutinesList }: { routine: RoutineProp, setRoutin
             children: (
                 <p>Are you sure you want to delete this routine? This action cannot be undone.</p>
             ),
+            classNames: {
+                content: "bg-neutral-800 text-white",
+                header: "bg-neutral-800 text-white",
+                title: "text-white",
+                close: "text-white bg-neutral-800 hover:bg-neutral-700",
+            },
             labels: { confirm: "Delete", cancel: "Cancel" },
             confirmProps: { color: 'red', variant: 'outline' },
+            cancelProps: { color: 'gray', variant: 'outline' },
             onCancel: () => console.log("Cancel"),
             onConfirm: () => DeleteRoutine(routine.id),
         });
     };
 
     return (
-        <Container className="w-full  bg-gray-100 py-[10px] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center">
+        <Container className="w-full bg-gray-100 py-[10px] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center dark:bg-neutral-800 dark:border-neutral-700 ">
             <Group>
                 <Stack gap={0.5} className="w-[45%]">
                     <h1 className="font-medium">{routine.name}</h1>

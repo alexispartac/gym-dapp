@@ -89,7 +89,7 @@ const NewWorkout = () => {
   );
 
   return (
-    <Container m={0} p={0}>
+    <Container>
       {statusWorkout ? (
         <Modal
           opened={opened}
@@ -102,8 +102,15 @@ const NewWorkout = () => {
           transitionProps={{ transition: "fade-up", duration: 700 }}
           title="Log Workout" // ﹀
           padding={7}
+          closeOnClickOutside={false}
+          classNames={{
+            content: "bg-neutral-800 text-white",
+            header: "bg-neutral-800 text-white indent-1",
+            title: "text-white",
+            close: "text-white bg-neutral-800 hover:bg-neutral-700",
+          }}
         >
-        <Container className="bg-white shadow-xl">
+        <Container  className="py-[2rem] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center text-black dark:text-white  dark:border-neutral-700">
             <Group className="grid grid-cols-3 gap-4 py-[5px] font-light">
                 <Stack gap={0}>
                     <Timer />

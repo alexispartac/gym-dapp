@@ -17,8 +17,8 @@ const SkeletonPost = () => {
 const Feed = () => {
 
   return (
-    <Container className='py-[100px]'>
-      <div className='text-3xl'> Feed </div>
+    <Container className='py-[100px]' w={"100%"} size="lg">
+      <div className='text-3xl dark:text-white'> Feed </div>
       <Stack my={"2rem"}>
           <SkeletonPost />
           <SkeletonPost />

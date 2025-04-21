@@ -9,7 +9,6 @@ import { useUser } from "../../context/UserContext";
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 
-
 const NewRoutine = ( 
   { exercises, handleClose, routinesList, setRoutinesList } : 
   { exercises : RoutineExerciseProp[], handleClose: () => void, routinesList : RoutineProp[], setRoutinesList: React.Dispatch<React.SetStateAction<RoutineProp[]>> } ) => {
@@ -40,6 +39,12 @@ const NewRoutine = (
         withCloseButton: false,
         size: 'sm',
         radius: 'md',
+        classNames: {
+          content: "bg-neutral-800 text-white",
+          header: "bg-neutral-800 text-white",
+          title: "text-white",
+          close: "text-white bg-neutral-800 hover:bg-neutral-700",
+        },
         innerProps: {
           modalBody: 'You have to give a name to the routine!',
         },
@@ -53,6 +58,12 @@ const NewRoutine = (
         withCloseButton: false,
         size: 'sm',
         radius: 'md',
+        classNames: {
+          content: "bg-neutral-800 text-white",
+          header: "bg-neutral-800 text-white",
+          title: "text-white",
+          close: "text-white bg-neutral-800 hover:bg-neutral-700",
+        },
         innerProps: {
           modalBody: 'You have to add at least one exercise to create a routine!',
         },
@@ -66,9 +77,16 @@ const NewRoutine = (
         withCloseButton: false,
         size: 'sm',
         radius: 'md',
+        classNames: {
+          content: "bg-neutral-800 text-white",
+          header: "bg-neutral-800 text-white",
+          title: "text-white",
+          close: "text-white bg-neutral-800 hover:bg-neutral-700",
+        },
         innerProps: {
           modalBody: 'You already have a routine with this name!',
         },
+        
       });
       return;
     } else {
@@ -106,6 +124,12 @@ const NewRoutine = (
           withCloseButton: false,
           size: 'sm',
           radius: 'md',
+          classNames: {
+            content: "bg-neutral-800 text-white",
+            header: "bg-neutral-800 text-white",
+            title: "text-white",
+            close: "text-white bg-neutral-800 hover:bg-neutral-700",
+          },
           innerProps: {
             modalBody: 'Routine saved successfully!',
           },
@@ -128,16 +152,31 @@ const NewRoutine = (
         opened={opened}
         onClose={close}
         title='Exercises'
+        classNames={{
+          content: "bg-neutral-800 text-white", 
+          header: "bg-neutral-800 text-white",
+          title: "text-white",
+          close: "text-white bg-neutral-800 hover:bg-neutral-700",
+        }}
+        closeOnClickOutside={false}
       >
         <MultiSelect
-            placeholder="Pick value"
-            defaultValue={['All Muscles']}
+            placeholder="Select the muscle group"
             clearable
-            value={selectedExercises}
+            searchable={true}
+            nothingFoundMessage="No options"
+            defaultValue={['All Muscles']}
             onChange={setSelectedExercises}
             data={
                 ['All Muscles', 'Legs', 'Back', 'Abdominals', 'Abductors', 'Biceps', 'Calves', 'Cardio', 'Chest', 'Full Body', 'Glutes', 'Lats', 'Neck', 'Shoulders', 'Traps', 'Triceps', 'Upper Back']
             }
+            classNames={{
+                input: 'bg-neutral-800 text-white',
+                dropdown: 'bg-neutral-800 text-white',
+                label: 'text-white',
+                option: 'bg-neutral-800 text-white hover:bg-neutral-700',
+                inputField: 'bg-neutral-800 text-white',
+            }}
         />
         <ListOfExercises 
           selectedExercises={selectedExercises} 
@@ -146,8 +185,16 @@ const NewRoutine = (
           exercises={exercises}
           />
       </Modal>
-      <Input placeholder='Routine Name' maxLength={12} onChange={ e => handleChangeNameRutine(e)}/>
-
+      <Input 
+        placeholder='Routine Name' 
+        maxLength={12} 
+        onChange={ e => handleChangeNameRutine(e)}
+        classNames={{
+          input: 'bg-neutral-800 text-white',
+        }}
+        /> 
+      <br />
+      <h1 className='text-xl font-bold'>Exercises</h1>
       {
         routineExercises.map( (exercise : RoutineExerciseProp) => {
           return (
@@ -155,7 +202,7 @@ const NewRoutine = (
           )
         })
       }
-      <Button variant='outline' color='blue' className='w-[100%] my-[10px]' onClick={open}>
+      <Button variant='outline' color='gray' className='w-[100%] my-[10px]' onClick={open}>
         Add a exercise
       </Button>
       <Button variant='outline' color='green' className='w-[100%] my-[10px] text-white bg-green-600' onClick={() => handleSaveRoutine(routineExercises)}>

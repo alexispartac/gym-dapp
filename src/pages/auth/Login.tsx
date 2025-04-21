@@ -74,6 +74,13 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
                 placeholder="Your username"
                 data-autofocus
                 onChange={handleChange}
+                classNames={
+                    {
+                        input: "bg-neutral-800 text-white border-neutral-700 focus:border-blue-500 focus:ring-blue-500",
+                        label: "text-white",
+                        error: "text-red-500",
+                    }
+                }
             />
 
             <TextInput
@@ -82,6 +89,13 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
                 placeholder="Your password"
                 type="password"
                 onChange={handleChange}
+                classNames={
+                    {
+                        input: "bg-neutral-800 text-white border-neutral-700 focus:border-blue-500 focus:ring-blue-500",
+                        label: "text-white",
+                        error: "text-red-500",
+                    }
+                }
             />
 
             <Group justify="flex-end" mt="md">
@@ -96,6 +110,12 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
                             title: 'SignIn',
                             centered: true,
                             innerProps: undefined,
+                            classNames: {
+                                content: "bg-neutral-800 text-white",
+                                header: "bg-neutral-800 text-white",
+                                title: "text-white",
+                                close: "text-white bg-neutral-800 hover:bg-neutral-700",
+                            },
                         });
                     }}
                 >

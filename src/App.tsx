@@ -8,8 +8,7 @@ import { LoginModal } from './pages/auth/Login';
 import { SigninModal } from './pages/auth/Signin';
 import { ExpectedModal } from './pages/new-workout/WorkoutModals';
 import RoutesOfPages from './routes';
-import NavBar from './components/NavBar';
-import NavFooter from './components/NavFooter';
+import { SidebarDemo } from './components/NavBar';
 import Authentication from './pages/auth/Authentication';
 import React from 'react';
 import { CheckBalance } from './pages/solana/check-balance';
@@ -17,7 +16,12 @@ import { useUser } from './context/UserContext';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
+
 const theme = createTheme({
+  colors: {
+    'gym-light': ['#f8f9fa', '#e9ecef', '#dee2e6', '#ced4da', '#adb5bd', '#6c757d', '#495057', '#343a40', '#212529', '#000000'],
+    'gym-dark': ['#212529', '#343a40', '#495057', '#6c757d', '#adb5bd', '#ced4da', '#dee2e6', '#e9ecef', '#f8f9fa', '#ffffff'],
+  },
 });
 
 const URL = 'http://127.0.0.1:8080/user/login';
@@ -68,9 +72,9 @@ function App() {
               {
                 cookies.login ?
                   <>
-                    <NavBar />
-                    <RoutesOfPages />
-                    <NavFooter />
+                    <SidebarDemo >
+                      <RoutesOfPages />
+                    </SidebarDemo>
                   </> :
                   <Authentication />
               }

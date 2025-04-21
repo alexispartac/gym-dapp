@@ -30,7 +30,7 @@ const Exercise = (
             <div>
                 {isModalOpen && <ExerciseDescription exercise={exercise} key={exercise.id} onClose={handleModalClose} />}
             </div>
-            <div className='flex flex-row my-[7px] mx-[2px] shadow-md shadow-gray-400 hover:bg-gray-300'>
+            <div className='flex flex-row my-[7px] mx-[2px] dark:bg-neutral-700 dark:text-white'>
                 {
                     isIn ?
                         <div className='h-[50px] w-[5px] bg-blue-700'></div>

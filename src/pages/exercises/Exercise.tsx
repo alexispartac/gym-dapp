@@ -12,15 +12,16 @@ const Exercise = ({ exercise }: { exercise: ExerciseProp }) => {
   const handleModalClose = () => setModalOpen(false);
 
   return (
-    <div className='flex w-[210px] rounded-md border-[1px] shadow-md flex-row my-2'>
+    <div className='flex w-[210px] h-[150px] rounded-md border-[1px] shadow-md flex-row my-2 bg-white dark:bg-transparent dark:border-gray dark:text-white'>
       <div className='flex flex-col px-3 py-4 w-full'>
         {isModalOpen && <ExerciseDescription exercise={exercise} key={exercise.id} onClose={handleModalClose} />}
         <div>
           <p className='h-[24px]'>{exercise.name}</p>
         </div>
         <HStack>
-          <Badge>{exercise.muscleGroup}</Badge>
+          <Badge className="dark:bg-gray-400">{exercise.muscleGroup}</Badge>
         </HStack>
+        <br />
         <div className='flex flex-row justify-between pt-1'>
           <Button
             variant='outline'

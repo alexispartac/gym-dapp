@@ -4,7 +4,20 @@ import { ExerciseProp } from "../Exercises";
 const ExerciseDescription = ({ exercise, onClose }: { exercise: ExerciseProp; onClose: () => void }) => {
     return (
       <Container>
-        <Modal opened={true} onClose={onClose} title={exercise.name} centered>
+        <Modal 
+          opened={true} 
+          onClose={onClose} 
+          title={exercise.name} 
+          centered
+          classNames={
+            {
+              title: 'text-white',
+              close: 'text-white bg-neutral-800 hover:bg-neutral-700',
+              header: 'bg-neutral-800 text-white indent-1',
+              body: 'bg-neutral-800 text-white',
+            }
+          }
+          >
           {
             exercise.description ?
               <Container>

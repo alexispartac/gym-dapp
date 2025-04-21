@@ -8,7 +8,7 @@ const CardsCarousel = ( {exercises} : {exercises : ExerciseProp[]} ) => {
   ));
 
   return (
-    <div className="w-full h-full px-[40px] py-5">
+    <div className="w-full h-full px-[30px] py-5">
       <Carousel items={cards} />
     </div>
   );

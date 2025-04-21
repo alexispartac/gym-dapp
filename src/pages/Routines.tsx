@@ -46,10 +46,10 @@ const Routines = () => {
     }, [URL, user]);
 
   return (
-    <Container className='py-[100px]'>
-      <h1 className='text-2xl'> My Routines </h1>
+    <Container w={'100%'} h={'100%'}>
+      <h1 className='text-2xl text-black dark:text-white'> My Routines </h1>
       <br />
-      <div className='py-[2rem] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center'>
+      <div className='py-[2rem] px-[1rem] rounded-md shadow-md border-[1px] flex-col items-center text-black dark:text-white  dark:border-neutral-700'>
         <RoutineContainer 
           routinesList={routinesList}
           setRoutinesList={setRoutinesList}

@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import { Button, Container, Group, Modal } from "@mantine/core";
 import { IconLibrary, IconSearch } from "@tabler/icons-react";
-import { exercisesForRoutine, RoutineProp } from "../Routines";
+import { exercisesForRoutine, RoutineExerciseProp, RoutineProp } from "../Routines";
 import NewRoutine from "./NewRoutine";
 import RoutinesElements from "./RoutinesElements";
 
@@ -12,19 +12,20 @@ const RoutineContainer = (
   { routinesList: RoutineProp[], setRoutinesList: React.Dispatch<React.SetStateAction<RoutineProp[]>> }
 ) => {
   const [opened, { open: openModal, close: closeModal }] = useDisclosure(false);
-
-  // creeaza un ref pentru componenta RoutinesElements
   const routinesRef = useRef<{ open: () => void; close: () => void }>(null);
+  const exercisesForRoutineFalse: RoutineExerciseProp[] = exercisesForRoutine.map( (exercise) =>  {
+    return { ...exercise, inRoutine: false}
+  })
 
   const handleOpenModal = () => {
     if (routinesRef.current) {
-      routinesRef.current.open(); // apeleaza functia open din componenta RoutinesElements
+      routinesRef.current.open(); 
     }
   };
 
   return (
     <Container p={0}>
-      <h1 className="text-xl font-medium">Routines</h1>
+      <h1 className="text-xl font-medium pb-[20px]">Routines</h1>
       <RoutinesElements 
         ref={routinesRef} 
         routinesList={routinesList}
@@ -36,17 +37,24 @@ const RoutineContainer = (
           opened={opened}
           onClose={closeModal}
           title="Create a Routine"
-        >
-          <NewRoutine 
-            exercises={exercisesForRoutine} 
-            handleClose={closeModal} 
-            routinesList={routinesList}
-            setRoutinesList={setRoutinesList}
-          />
+          classNames={{
+            content: "bg-neutral-800 text-white", 
+            header: "bg-neutral-800 text-white",
+            title: "text-white",
+            close: "text-white bg-neutral-800 hover:bg-neutral-700",
+          }}
+          closeOnClickOutside={false}
+          >
+            <NewRoutine 
+              exercises={exercisesForRoutineFalse} 
+              handleClose={closeModal} 
+              routinesList={routinesList}
+              setRoutinesList={setRoutinesList}
+            />
         </Modal>
         <Button
           variant="outline"
-          color="blue"
+          color="gray "
           className="w-[50%]"
           onClick={openModal}
         >
@@ -55,7 +63,7 @@ const RoutineContainer = (
         </Button>
         <Button
           variant="outline"
-          color="blue"
+          color="gray"
           className="w-[42%]"
           onClick={handleOpenModal} 
         >
