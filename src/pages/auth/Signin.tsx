@@ -194,6 +194,12 @@ export const SigninModal = ({ context, id }: ContextModalProps ) => {
                             innerProps: undefined,
                             centered: true,
                             padding: 'xl',
+                            classNames: {
+                                content: "bg-neutral-800 text-white",
+                                header: "bg-neutral-800 text-white",
+                                title: "text-white",
+                                close: "text-white bg-neutral-800 hover:bg-neutral-700",
+                            },
                         });
                     }}
                 >

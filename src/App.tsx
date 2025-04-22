@@ -13,8 +13,10 @@ import Authentication from './pages/auth/Authentication';
 import React from 'react';
 import { CheckBalance } from './pages/solana/check-balance';
 import { useUser } from './context/UserContext';
-import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { UserNFT } from './pages/Wallet';
+import GetNFTs from './pages/solana/getNFTs';
+import axios from 'axios';
 
 
 const theme = createTheme({
@@ -27,7 +29,7 @@ const theme = createTheme({
 const URL = 'http://127.0.0.1:8080/user/login';
 function App() {
   const [cookies] = useCookies(['login']);
-  const { setBalance, user, setUser } = useUser();
+  const { user, setBalance, setUser, setNFT } = useUser();
 
   React.useEffect(() => {
     if (cookies.login) {
@@ -57,11 +59,23 @@ function App() {
       } catch (error) {
         console.log(error);
       }
+    }
+  }, [cookies.login, setBalance, setNFT, setUser, user.userInfo.publicKey])
+
+  React.useEffect(() => {
+    if (user.userInfo.publicKey) {
       CheckBalance({ pubkey: user.userInfo.publicKey }).then((balance: number) => {
         setBalance(balance);
       }).catch(() => alert('Connect to the internet!'));
+      GetNFTs({ pubkey: user.userInfo.publicKey }).then((NFTs: UserNFT[] | undefined) => {
+        if (NFTs && NFTs.length > 0) {
+          setNFT([NFTs[0]]); 
+        } else {
+          setNFT([]);
+        }
+      }).catch(() => alert('Connect to the internet!'));
     }
-  }, [cookies.login, setBalance, setUser, user.userInfo.publicKey])
+  }, [user.userInfo.publicKey, setBalance, setNFT]);
 
   return (
     <MantineProvider theme={theme}>

@@ -1,6 +1,6 @@
 import { createContext, useState, useContext } from 'react';
 import { ReactNode } from 'react';
-
+import { UserNFT } from '../pages/Wallet';
 interface User {
     userInfo : {
         userId: string;
@@ -14,8 +14,10 @@ interface User {
 interface UserContextType {
     balance: number;
     user: User;
+    NFT: UserNFT[];
     setUser: React.Dispatch<React.SetStateAction<User>>;
     setBalance: React.Dispatch<React.SetStateAction<number>>;
+    setNFT: React.Dispatch<React.SetStateAction<UserNFT[]>>;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -29,8 +31,11 @@ const UserContext = createContext<UserContextType>({
         isAuthenticated: false,
     },
     balance: 0,
+    NFT: [],
+    setNFT: () => {},
     setUser: () => {},
     setBalance: () => {},
+    
 });
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
@@ -44,9 +49,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated: false,
     });
     const [balance, setBalance] = useState(0);
+    const [NFT, setNFT] = useState<UserNFT[]>([]);
 
     return (
-        <UserContext.Provider value={{ user, setUser, balance, setBalance }}>
+        <UserContext.Provider value={{ user, setUser, balance, setBalance, NFT, setNFT }}>
             {children}
         </UserContext.Provider>
     );

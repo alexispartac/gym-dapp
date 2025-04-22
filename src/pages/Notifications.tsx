@@ -59,6 +59,8 @@ const Notifications = () => {
 
   return (
     <Container p={0} m={0} w={"100%"} className='flex flex-col align-center' >
+      <h1 className='text-3xl font-bold text-neutral-200'>Notifications</h1>
+      <br />
       {notList.map((nt) => (
         <Notify
           key={nt.title}
