@@ -4,8 +4,6 @@ import { Provider as JotaiProvider } from './components/ui/provider';
 import { Provider as ReduxProvider } from 'react-redux';
 import { store } from './pages/new-workout/store';
 import { ModalsProvider } from '@mantine/modals';
-import { LoginModal } from './pages/auth/Login';
-import { SigninModal } from './pages/auth/Signin';
 import { ExpectedModal } from './pages/new-workout/WorkoutModals';
 import RoutesOfPages from './routes';
 import { SidebarDemo } from './components/NavBar';
@@ -30,6 +28,7 @@ const URL = 'http://127.0.0.1:8080/user/login';
 function App() {
   const [cookies] = useCookies(['login']);
   const { user, setBalance, setUser, setNFT } = useUser();
+
 
   React.useEffect(() => {
     if (cookies.login) {
@@ -79,12 +78,12 @@ function App() {
 
   return (
     <MantineProvider theme={theme}>
-      <ModalsProvider modals={{ login: LoginModal, signin: SigninModal, expected: ExpectedModal }} labels={{ confirm: 'Confirm', cancel: 'Cancel' }}>
+      <ModalsProvider modals={{ expected: ExpectedModal }} labels={{ confirm: 'Confirm', cancel: 'Cancel' }}>
         <JotaiProvider>
           <ReduxProvider store={store}>
             <div>
               {
-                cookies.login ?
+                user.isAuthenticated ?
                   <>
                     <SidebarDemo >
                       <RoutesOfPages />

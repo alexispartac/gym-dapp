@@ -11,7 +11,7 @@ interface User {
     isAuthenticated: boolean;
 }
 
-interface UserContextType {
+export interface UserContextType {
     balance: number;
     user: User;
     NFT: UserNFT[];
