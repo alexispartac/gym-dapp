@@ -1,3 +1,4 @@
+import React from 'react';
 import { MantineProvider, createTheme } from '@mantine/core';
 import { useCookies } from 'react-cookie';
 import { Provider as JotaiProvider } from './components/ui/provider';
@@ -8,13 +9,12 @@ import { ExpectedModal } from './pages/new-workout/WorkoutModals';
 import RoutesOfPages from './routes';
 import { SidebarDemo } from './components/NavBar';
 import Authentication from './pages/auth/Authentication';
-import React from 'react';
+import { LoginModal } from './pages/auth/LogIn';
+import { SignUpModal } from './pages/auth/SignUp';
 import { CheckBalance } from './pages/solana/check-balance';
 import { useUser } from './context/UserContext';
-import { jwtDecode } from 'jwt-decode';
 import { UserNFT } from './pages/Wallet';
 import GetNFTs from './pages/solana/getNFTs';
-import axios from 'axios';
 
 
 const theme = createTheme({
@@ -24,45 +24,19 @@ const theme = createTheme({
   },
 });
 
-const URL = 'http://127.0.0.1:8080/user/login';
 function App() {
   const [cookies] = useCookies(['login']);
-  const { user, setBalance, setUser, setNFT } = useUser();
-
+  const { user, setBalance, setNFT } = useUser();
 
   React.useEffect(() => {
     if (cookies.login) {
-      const jwt_token = cookies.login.jwt_token;
-      const decoded = jwtDecode(jwt_token);
-      const [username, password] = typeof decoded.sub === 'string' ? decoded.sub.split(':') : ['', ''];
-      try {
-        axios.post(URL, {
-          username: username,
-          password: password
-        },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        ).then((response) => {
-          const user_data = (response.data as { user_data: any }).user_data;
-          const userData = {
-            userId: user_data.user_id,
-            username: user_data.username,
-            publicKey: user_data.public_key,
-            password: user_data.password,
-          };
-          setUser({ userInfo: userData, isAuthenticated: true });
-        }).catch(() => alert('Connect to the internet!'));
-      } catch (error) {
-        console.log(error);
-      }
+      user.userInfo = cookies.login.userInfo;
+      user.isAuthenticated = true;
     }
-  }, [cookies.login, setBalance, setNFT, setUser, user.userInfo.publicKey])
+  }, [cookies.login, user]);
 
   React.useEffect(() => {
-    if (user.userInfo.publicKey) {
+    if (user.userInfo) {
       CheckBalance({ pubkey: user.userInfo.publicKey }).then((balance: number) => {
         setBalance(balance);
       }).catch(() => alert('Connect to the internet!'));
@@ -74,16 +48,16 @@ function App() {
         }
       }).catch(() => alert('Connect to the internet!'));
     }
-  }, [user.userInfo.publicKey, setBalance, setNFT]);
+  }, [setBalance, setNFT, user.userInfo]);
 
   return (
     <MantineProvider theme={theme}>
-      <ModalsProvider modals={{ expected: ExpectedModal }} labels={{ confirm: 'Confirm', cancel: 'Cancel' }}>
+      <ModalsProvider modals={{ login: LoginModal, signup: SignUpModal, expected: ExpectedModal }} labels={{ confirm: 'Confirm', cancel: 'Cancel' }}>
         <JotaiProvider>
           <ReduxProvider store={store}>
             <div>
               {
-                user.isAuthenticated ?
+                cookies.login || user.isAuthenticated ?
                   <>
                     <SidebarDemo >
                       <RoutesOfPages />

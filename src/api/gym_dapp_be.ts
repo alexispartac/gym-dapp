@@ -1,13 +1,18 @@
-
+/**
+ * Program IDL in camelCase format in order to be used in JS/TS.
+ *
+ * Note that this is only a type helper and is not the actual IDL. The original
+ * IDL can be found at `target/idl/gym_dapp_be.json`.
+ */
 export type GymDappBe = {
-  "address": "9akkfdTGrGZaavswyVC7jqBu3AsTBim634xuUhKSoYMr",
-  "metadata": {
+  address: "9akkfdTGrGZaavswyVC7jqBu3AsTBim634xuUhKSoYMr",
+  metadata: {
     "name": "gymDappBe",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"
   },
-  "instructions": [
+  instructions: [
     {
       "name": "initializeUserAccount",
       "discriminator": [
@@ -20,23 +25,50 @@ export type GymDappBe = {
         122,
         238
       ],
-      "accounts": [
+      accounts: [
         {
           "name": "user",
           "writable": true,
           "signer": true
         },
         {
-          "name": "userAccount",
+          "name": "useraccount",
           "writable": true,
-          "signer": true
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  97,
+                  99,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
         },
         {
           "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
-      "args": [
+      args: [
+        {
+          "name": "userid",
+          "type": "string"
+        },
         {
           "name": "username",
           "type": "string"
@@ -48,74 +80,66 @@ export type GymDappBe = {
         {
           "name": "password",
           "type": "string"
-        },
-        {
-          "name": "userId",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "loginUser",
-      "discriminator": [
-        90,
-        4,
-        186,
-        228,
-        135,
-        161,
-        83,
-        37
-      ],
-      "accounts": [
-        {
-          "name": "userAccount",
-          "writable": true
-        }
-      ],
-      "args": [
-        {
-          "name": "username",
-          "type": "string"
-        },
-        {
-          "name": "password",
-          "type": "string"
         }
       ]
     }
   ],
-  "accounts": [
+  accounts: [
     {
-      "name": "userAccount",
+      "name": "user",
       "discriminator": [
-        211,
-        33,
-        136,
-        16,
-        186,
-        110,
-        242,
-        127
+        159,
+        117,
+        95,
+        227,
+        239,
+        151,
+        58,
+        236
       ]
     }
   ],
-  "errors": [
+  errors: [
     {
       "code": 6000,
       "name": "invalidCredentials",
-      "msg": "Invalid username or password."
+      "msg": "Invalid credentials provided."
+    },
+    {
+      "code": 6001,
+      "name": "userNotFound",
+      "msg": "User account not found."
+    },
+    {
+      "code": 6002,
+      "name": "invalidUserId",
+      "msg": "Invalid user ID provided."
+    },
+    {
+      "code": 6003,
+      "name": "invalidUsername",
+      "msg": "Invalid username provided."
+    },
+    {
+      "code": 6004,
+      "name": "invalidEmail",
+      "msg": "Invalid email provided."
+    },
+    {
+      "code": 6005,
+      "name": "invalidPassword",
+      "msg": "Invalid password provided."
     }
   ],
-  "types": [
+  types: [
     {
-      "name": "userAccount",
+      "name": "user",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "owner",
-            "type": "pubkey"
+            "name": "userid",
+            "type": "string"
           },
           {
             "name": "username",
@@ -127,10 +151,6 @@ export type GymDappBe = {
           },
           {
             "name": "password",
-            "type": "string"
-          },
-          {
-            "name": "userId",
             "type": "string"
           }
         ]
