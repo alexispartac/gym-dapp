@@ -1,17 +1,17 @@
 import { createContext, useState, useContext } from 'react';
 import { ReactNode } from 'react';
 import { UserNFT } from '../pages/Wallet';
-interface User {
+export interface User {
     userInfo : {
         userId: string;
         username: string;
         publicKey: string;
-        password: string;
+        email: string
     }
     isAuthenticated: boolean;
 }
 
-interface UserContextType {
+export interface UserContextType {
     balance: number;
     user: User;
     NFT: UserNFT[];
@@ -26,7 +26,7 @@ const UserContext = createContext<UserContextType>({
             userId: '',
             username: '',
             publicKey: '',
-            password: '',
+            email: '',
         },
         isAuthenticated: false,
     },
@@ -44,7 +44,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             userId: '',
             username: '',
             publicKey: '',
-            password: '',
+            email: '',
         },
         isAuthenticated: false,
     });

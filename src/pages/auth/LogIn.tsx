@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { useCookies } from 'react-cookie';
 import { Stack, TextInput, Group, Button, Alert } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import axios from 'axios'
 import { useUser } from '../../context/UserContext';
+import * as anchor from "@coral-xyz/anchor";
+import idl from "../../api/gym-dapp_be.json"
+import { useCookies } from 'react-cookie';
+import { GymDappBe } from '../../api/gym_dapp_be'
+
 export interface LoginProp {
     username: string;
     password: string;
@@ -13,14 +16,14 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
     const [login, setLogin] = useState({ username: '', password: '' }); 
     const [errorMessage, setErrorMessage] = useState(''); 
     const [loading, setLoading] = useState(false); 
-    const [, setCookie] = useCookies(['login']); 
     const { setUser } = useUser();
+    const [, setCookie] = useCookies(['login']);
 
     const handleChange = (e : any) => {
         setLogin({ ...login, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
         if (!login.username || login.username.length < 8) {
             setErrorMessage('Username trebuie să aibă cel puțin 8 caractere.');
             return;
@@ -34,29 +37,66 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
         setErrorMessage('');
         setLoading(true);
 
-        const URL = 'http://127.0.0.1:8080/user/login';
-        try{
-            const data = { username: login.username, password: login.password };
-            axios.post(URL, data,
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            ).then((response) => {
-                type ResponseData = { jwt_token: string; user_data: any };
-                const { jwt_token, user_data } = response.data as ResponseData;
-                setUser({ userInfo: user_data, isAuthenticated: true });
-                setCookie('login', { jwt_token }, { path: '/' });
-                setLoading(false);
-                context.closeModal(id);
-            }).catch((error) => {
-                console.error(error);
-                setLoading(false);
-                setErrorMessage('Login failed. Please try again.');
+        try {
+            const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
+            const wallet = (window as any).solana;
+
+            if (!wallet || !wallet.isPhantom) {
+                throw new Error("Phantom Wallet is not available");
+            }
+
+            if (!wallet.publicKey) {
+                throw new Error("Wallet is not connected. Please connect your Phantom Wallet.");
+            }
+
+            const provider = new anchor.AnchorProvider(connection, wallet, {
+                preflightCommitment: "processed",
             });
-        }catch(error){
-            console.log(error);
+            anchor.setProvider(provider);
+            const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
+
+            try {
+                const userAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
+                    [Buffer.from("useraccount"), wallet.publicKey.toBuffer()],
+                    program.programId
+                );
+
+                const userAccountPda = userAccountPdaAndBump[0];
+                console.log("User Account PDA:", userAccountPda.toString());
+                const dataFromPda: {
+                    userid: string;
+                    username: string;
+                    email: string;
+                    password: string;
+                } = await program.account.user.fetch(userAccountPda);
+                console.log("Data from PDA:", dataFromPda);
+
+                if (!dataFromPda || dataFromPda.username !== login.username
+                    || dataFromPda.password !== login.password)
+                    setErrorMessage("Username or password is incorrect!");
+                else {
+                    const userInfo = {
+                        username: dataFromPda.username,
+                        userId: dataFromPda.userid,
+                        publicKey: wallet.publicKey.toString(),
+                        email: dataFromPda.email,
+                    }
+                    setUser({
+                        userInfo: userInfo,
+                        isAuthenticated: true,
+                    });
+                    setCookie('login', { userInfo: userInfo }, { path: '/' });
+                    context.closeModal(id);
+                }
+            } catch (error: any) {
+                if (error.message === 'Invalid account discriminator')
+                    setErrorMessage("Username or password is incorrect!");
+            }      
+            setLoading(false);
+        } catch (error : any) {
+            console.error("Error logging in user:", error);
+            setErrorMessage(error.message || "Failed to log in. Please try again.");
+            setLoading(false);
         }
     };
 
@@ -106,8 +146,8 @@ export const LoginModal = ({ context, id }: { context: { closeModal: (id: string
                     onClick={() => {
                         context.closeModal(id);
                         modals.openContextModal({
-                            modal: 'signin',
-                            title: 'SignIn',
+                            modal: 'signup',
+                            title: 'SignUp',
                             centered: true,
                             innerProps: undefined,
                             classNames: {

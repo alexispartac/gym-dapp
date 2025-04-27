@@ -126,7 +126,7 @@ export function SidebarDemo( { children }: { children: React.ReactNode }) {
                 aria-label='Logout'
                 className={`h-5 w-5 m-auto shrink-0 cursor-pointer text-neutral-700 dark:text-neutral-200 ${open ? 'visible' : 'invisible'}`}
                 onClick={() => {
-                setUser({ isAuthenticated: false, userInfo: { userId: '', username: '', publicKey: '', password: '' } });
+                setUser({ isAuthenticated: false, userInfo: { userId: '', username: '', publicKey: '', email: '' } });
                 removeCookie('login', { path: '/' });
                 }}
             />
