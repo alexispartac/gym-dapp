@@ -5,14 +5,77 @@
  * IDL can be found at `target/idl/gym_dapp_be.json`.
  */
 export type GymDappBe = {
-  address: "9akkfdTGrGZaavswyVC7jqBu3AsTBim634xuUhKSoYMr",
-  metadata: {
+  "address": "9akkfdTGrGZaavswyVC7jqBu3AsTBim634xuUhKSoYMr",
+  "metadata": {
     "name": "gymDappBe",
     "version": "0.1.0",
     "spec": "0.1.0",
     "description": "Created with Anchor"
   },
-  instructions: [
+  "instructions": [
+    {
+      "name": "addWorkout",
+      "discriminator": [
+        116,
+        254,
+        3,
+        246,
+        182,
+        126,
+        229,
+        241
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userworkouts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  119,
+                  111,
+                  114,
+                  107,
+                  111,
+                  117,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "workout",
+          "type": {
+            "defined": {
+              "name": "workout"
+            }
+          }
+        }
+      ]
+    },
     {
       "name": "initializeUserAccount",
       "discriminator": [
@@ -25,7 +88,7 @@ export type GymDappBe = {
         122,
         238
       ],
-      accounts: [
+      "accounts": [
         {
           "name": "user",
           "writable": true,
@@ -64,7 +127,7 @@ export type GymDappBe = {
           "address": "11111111111111111111111111111111"
         }
       ],
-      args: [
+      "args": [
         {
           "name": "userid",
           "type": "string"
@@ -82,9 +145,127 @@ export type GymDappBe = {
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "initializeUserWorkouts",
+      "discriminator": [
+        39,
+        232,
+        97,
+        253,
+        143,
+        51,
+        169,
+        26
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userworkouts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  119,
+                  111,
+                  114,
+                  107,
+                  111,
+                  117,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "userid",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "removeWorkout",
+      "discriminator": [
+        87,
+        170,
+        76,
+        160,
+        205,
+        79,
+        207,
+        67
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userworkouts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  119,
+                  111,
+                  114,
+                  107,
+                  111,
+                  117,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "systemProgram",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "workoutid",
+          "type": "string"
+        }
+      ]
     }
   ],
-  accounts: [
+  "accounts": [
     {
       "name": "user",
       "discriminator": [
@@ -97,9 +278,22 @@ export type GymDappBe = {
         58,
         236
       ]
+    },
+    {
+      "name": "workouts",
+      "discriminator": [
+        240,
+        133,
+        193,
+        79,
+        148,
+        44,
+        84,
+        140
+      ]
     }
   ],
-  errors: [
+  "errors": [
     {
       "code": 6000,
       "name": "invalidCredentials",
@@ -131,7 +325,65 @@ export type GymDappBe = {
       "msg": "Invalid password provided."
     }
   ],
-  types: [
+  "types": [
+    {
+      "name": "exercise",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "muscleGroup",
+            "type": "string"
+          },
+          {
+            "name": "sets",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "set"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "set",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "setNumber",
+            "type": "u32"
+          },
+          {
+            "name": "kg",
+            "type": "f32"
+          },
+          {
+            "name": "reps",
+            "type": "u32"
+          },
+          {
+            "name": "previous",
+            "type": "string"
+          },
+          {
+            "name": "done",
+            "type": "bool"
+          }
+        ]
+      }
+    },
     {
       "name": "user",
       "type": {
@@ -152,6 +404,70 @@ export type GymDappBe = {
           {
             "name": "password",
             "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "workout",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "workoutid",
+            "type": "string"
+          },
+          {
+            "name": "exercises",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "exercise"
+                }
+              }
+            }
+          },
+          {
+            "name": "date",
+            "type": "i64"
+          },
+          {
+            "name": "duration",
+            "type": "u32"
+          },
+          {
+            "name": "volume",
+            "type": "u32"
+          },
+          {
+            "name": "sets",
+            "type": "u32"
+          },
+          {
+            "name": "rewards",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "workouts",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "userid",
+            "type": "string"
+          },
+          {
+            "name": "workouts",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "workout"
+                }
+              }
+            }
           }
         ]
       }

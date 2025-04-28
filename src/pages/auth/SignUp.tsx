@@ -85,6 +85,11 @@ export const SignUpModal = ({ context, id }: ContextModalProps) => {
                     .initializeUserAccount(userid, signUp.username, signUp.email, signUp.password)
                     .rpc();
                 console.log("User account initialized");
+                await program.methods
+                    .initializeUserWorkouts(userid)
+                    .rpc();
+                console.log("User workouts account initialized")
+
                 const userAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
                     [Buffer.from("useraccount"), wallet.publicKey.toBuffer()],
                     program.programId
@@ -92,6 +97,16 @@ export const SignUpModal = ({ context, id }: ContextModalProps) => {
 
                 const userAccountPda = userAccountPdaAndBump[0];
                 console.log("User Account PDA:", userAccountPda.toString());
+
+                const workoutsAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
+                    [Buffer.from("userworkouts"), wallet.publicKey.toBuffer()],
+                    program.programId
+                )
+
+                const workoutsAccountPda = workoutsAccountPdaAndBump[0];
+                console.log("User Workouts Account PDA:", workoutsAccountPda.toString());
+
+            
                 const dataFromPda: {
                     userid: string;
                     username: string;

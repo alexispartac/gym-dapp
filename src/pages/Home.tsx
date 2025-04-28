@@ -1,11 +1,38 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { Container, Group, Skeleton, Stack } from '@mantine/core';
 import { useUser } from '../context/UserContext';
 import { WorkoutPostProp } from './Workout';
 import { modals } from '@mantine/modals';
 import { SkeletonText } from '@chakra-ui/react';
 import { motion } from "framer-motion";
+import * as anchor from "@coral-xyz/anchor";
+import * as idl from "../api/gym-dapp_be.json"
+import { GymDappBe } from '@/api/gym_dapp_be';
+import { PublicKey } from '@solana/web3.js';
+
+interface WorkoutsResponse {
+  userid: string;
+  workouts: {
+      workoutid: string;
+      exercises: {
+          id: string;
+          name: string;
+          muscleGroup: string;
+          sets: {
+              setNumber: number;
+              kg: number;
+              reps: number;
+              previous: string;
+              done: boolean;
+          }[];
+      }[];
+      date: anchor.BN;
+      duration: number;
+      volume: number;
+      sets: number;
+      rewards: number;
+  }[];
+}
 
 const Balance = () => {
   const { balance } = useUser();
@@ -255,43 +282,73 @@ const Home = () => {
   const [workouts, setWorkouts] = React.useState<WorkoutPostProp[]>([]);
   const { user } = useUser();
 
-  const URL = `http://127.0.0.1:8080/workout/get/${user.userInfo.userId}`;
-  const deleteURL = `http://127.0.0.1:8080/workout/delete`;
 
   React.useEffect(() => {
     const fetchWorkouts = async () => {
       if (!user || !user.userInfo || !user.userInfo.userId) {
         return;
       }
+      //* todos- functie pentru asta
+      const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
+      const wallet = (window as any).solana;
 
+      const provider = new anchor.AnchorProvider(connection, wallet, {
+          preflightCommitment: "processed",
+      });
+
+      anchor.setProvider(provider);
+      const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
+      //*
       try {
-        const response = await axios.get<WorkoutPostProp[]>(URL, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        const reversedWorkouts = response.data.reverse();
-        setWorkouts(reversedWorkouts);
+        const workoutsAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
+            [Buffer.from("userworkouts"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+            program.programId
+        )
+
+        const workoutsAccountPda = workoutsAccountPdaAndBump[0];
+        const response: WorkoutsResponse = await program.account.workouts.fetch(workoutsAccountPda);
+
+        const reversedWorkouts = response.workouts.reverse();
+        const workoutsData: WorkoutPostProp[] = reversedWorkouts.map((workout) => ({
+          id: workout.workoutid,
+          user_id: response.userid,
+          username: user.userInfo.username,
+          exercises: workout.exercises.map((exercise) => ({
+            id: exercise.id,
+            name: exercise.name,
+            muscle_group: exercise.muscleGroup,
+            sets: exercise.sets.map((set) => ({
+              set_number: set.setNumber,
+              kg: set.kg,
+              reps: set.reps,
+              previous: set.previous,
+              done: set.done,
+            })),
+          })),
+          date: workout.date.toString(),
+          duration: workout.duration,
+          volume: workout.volume,
+          sets: workout.sets,
+          rewards: workout.rewards,
+        }));
+        console.log("Workouts", workoutsData);
+
+        setWorkouts(workoutsData);
       } catch (error) {
         console.error("Failed to fetch workouts:", error);
-        alert("Failed to fetch workouts. Please try again.");
+        console.error("Failed to fetch workouts. Please try again.");
       }
     };
 
     fetchWorkouts();
-  }, [URL, user]);
+  }, [user]);
 
   async function DeleteWorkout(id: string) {
     try {
-      await axios.delete(`${deleteURL}/${id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
       setWorkouts((prevWorkouts) => prevWorkouts.filter((workout) => workout.id !== id));
     } catch (error) {
       console.error("Failed to delete workout:", error);
-      alert("Failed to delete workout. Please try again.");
+      console.error("Failed to delete workout. Please try again.");
     }
   };
 
@@ -304,6 +361,11 @@ const Home = () => {
             <Post key={workout.id} workout={workout} onDelete={DeleteWorkout} />
           ))
         ) : (
+          workouts.length === 0 ?
+            <div className="flex justify-center items-center h-screen">
+              <h1 className="text-2xl dark:text-white">No workouts yet</h1>
+            </div>
+            :
           <Stack my={"2rem"} gap="6" maw="3xl" w="full">
             <SkeletonPost />
             <SkeletonPost />

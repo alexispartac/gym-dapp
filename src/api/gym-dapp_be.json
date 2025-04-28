@@ -8,6 +8,69 @@
   },
   "instructions": [
     {
+      "name": "add_workout",
+      "discriminator": [
+        116,
+        254,
+        3,
+        246,
+        182,
+        126,
+        229,
+        241
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userworkouts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  119,
+                  111,
+                  114,
+                  107,
+                  111,
+                  117,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "workout",
+          "type": {
+            "defined": {
+              "name": "Workout"
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "initialize_user_account",
       "discriminator": [
         131,
@@ -76,6 +139,124 @@
           "type": "string"
         }
       ]
+    },
+    {
+      "name": "initialize_user_workouts",
+      "discriminator": [
+        39,
+        232,
+        97,
+        253,
+        143,
+        51,
+        169,
+        26
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userworkouts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  119,
+                  111,
+                  114,
+                  107,
+                  111,
+                  117,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "userid",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "remove_workout",
+      "discriminator": [
+        87,
+        170,
+        76,
+        160,
+        205,
+        79,
+        207,
+        67
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userworkouts",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  119,
+                  111,
+                  114,
+                  107,
+                  111,
+                  117,
+                  116,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "workoutid",
+          "type": "string"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -90,6 +271,19 @@
         151,
         58,
         236
+      ]
+    },
+    {
+      "name": "Workouts",
+      "discriminator": [
+        240,
+        133,
+        193,
+        79,
+        148,
+        44,
+        84,
+        140
       ]
     }
   ],
@@ -127,6 +321,64 @@
   ],
   "types": [
     {
+      "name": "Exercise",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "muscle_group",
+            "type": "string"
+          },
+          {
+            "name": "sets",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Set"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Set",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "set_number",
+            "type": "u32"
+          },
+          {
+            "name": "kg",
+            "type": "f32"
+          },
+          {
+            "name": "reps",
+            "type": "u32"
+          },
+          {
+            "name": "previous",
+            "type": "string"
+          },
+          {
+            "name": "done",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
       "name": "User",
       "type": {
         "kind": "struct",
@@ -146,6 +398,70 @@
           {
             "name": "password",
             "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Workout",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "workoutid",
+            "type": "string"
+          },
+          {
+            "name": "exercises",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Exercise"
+                }
+              }
+            }
+          },
+          {
+            "name": "date",
+            "type": "i64"
+          },
+          {
+            "name": "duration",
+            "type": "u32"
+          },
+          {
+            "name": "volume",
+            "type": "u32"
+          },
+          {
+            "name": "sets",
+            "type": "u32"
+          },
+          {
+            "name": "rewards",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Workouts",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "userid",
+            "type": "string"
+          },
+          {
+            "name": "workouts",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Workout"
+                }
+              }
+            }
           }
         ]
       }

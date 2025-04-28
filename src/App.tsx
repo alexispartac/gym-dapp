@@ -40,13 +40,18 @@ function App() {
       CheckBalance({ pubkey: user.userInfo.publicKey }).then((balance: number) => {
         setBalance(balance);
       }).catch(() => alert('Connect to the internet!'));
+
+      
+
+
+      // adauga asta in blockchain
       GetNFTs({ pubkey: user.userInfo.publicKey }).then((NFTs: UserNFT[] | undefined) => {
         if (NFTs && NFTs.length > 0) {
           setNFT([NFTs[0]]); 
         } else {
           setNFT([]);
         }
-      }).catch(() => alert('Connect to the internet!'));
+      }).catch(() => console.error('Connect to the internet!'));
     }
   }, [setBalance, setNFT, user.userInfo]);
 
