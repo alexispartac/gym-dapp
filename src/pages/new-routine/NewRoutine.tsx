@@ -1,13 +1,18 @@
 import React from "react";
+import * as anchor from "@coral-xyz/anchor";
+import * as idl from "../../api/gym-dapp_be.json"
 import { Button, Container, Input, Modal, MultiSelect } from "@mantine/core";
 import Exercise from "./Exercise";
-import { exercisesForRoutine, RoutineExerciseProp, RoutineProp } from "../Routines";
+import { exercisesForRoutine, RoutineB, RoutineExerciseProp, RoutineProp } from "../Routines";
  import ListOfExercises from "./ListOfExercises";
 import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { useUser } from "../../context/UserContext";
-import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
+import { GymDappBe } from "../../api/gym_dapp_be";
+import { PublicKey } from "@solana/web3.js";
+
+
 
 const NewRoutine = ( 
   { exercises, handleClose, routinesList, setRoutinesList } : 
@@ -28,9 +33,7 @@ const NewRoutine = (
     exercises.map((ex: RoutineExerciseProp) => ex.id === exercise.id ? ex.inRoutine = false : null );
   }
 
-  const URL = 'http://127.0.0.1:8080/routine/post';
-
-  const handleSaveRoutine = (routineExercises: RoutineExerciseProp[]) => {
+  const handleSaveRoutine = async(routineExercises: RoutineExerciseProp[]) => {
     if (name === '') {
       modals.openContextModal({
         modal: 'expected',
@@ -91,32 +94,55 @@ const NewRoutine = (
       return;
     } else {
       setLoading(true);
-      // adaugare in baza de date
-      const exercises = routineExercises.map(exercise => {
+      // adaugare pe blockchain
+      if (!user || !user.userInfo || !user.userInfo.userId || !user.userInfo.username) {
+        console.error("User information is missing");
+        return;
+      }
+
+      const routinePost: RoutineB = {
+        routineid: uuidv4(),
+        name: name,
+        exercises: routineExercises.map(exercise => {
           const { id, name, muscleGroup } = exercise;
-          return { id: id, name : name, muscle_group: muscleGroup, sets : [] }
-        }
-      )
-      axios.post(URL, 
-        {
-          id: uuidv4(),
-          user_id: user.userInfo.userId,
-          name: name,
-          exercises: exercises
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
-      .then((response) => {
+          return { id, name, muscleGroup, sets: [] }
+        })
+      } 
+      console.log("Routine to be saved:", routinePost)
+
+      const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
+      const wallet = (window as any).solana;
+
+      const provider = new anchor.AnchorProvider(connection, wallet, {
+        preflightCommitment: "processed",
+      });
+
+      anchor.setProvider(provider);
+      const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
+      
+      try {
+        const routinesAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
+          [Buffer.from("userroutines"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+          program.programId
+        )
+        const routinesAccountPda = routinesAccountPdaAndBump[0];
+
+        await program.methods
+          .addRoutine(routinePost)
+          .rpc();
+        console.log("Routine added successfully!");
+
+
+        const updatedRoutines: RoutineB[] = (await program.account.routines.fetch(routinesAccountPda)).routines;
+
+        console.log("Routines", updatedRoutines);
+
         setLoading(false);
         exercisesForRoutine.map((ex: RoutineExerciseProp) => ex.inRoutine = false);
         setName('');
         setRoutineExercises([]);
-        console.log(response.data);
         handleClose();
+
         modals.openContextModal({
           modal: 'expected',
           title: 'Save routine',
@@ -134,11 +160,11 @@ const NewRoutine = (
             modalBody: 'Routine saved successfully!',
           },
         });
-      })
-      .catch((error) => {
+      } catch (error: any) {
         setLoading(false);
-        console.log(error);
-      });
+        console.error("Failed to save routine:", error);
+      }
+
     }
   }
 

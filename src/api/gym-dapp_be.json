@@ -8,6 +8,69 @@
   },
   "instructions": [
     {
+      "name": "add_routine",
+      "discriminator": [
+        84,
+        182,
+        172,
+        175,
+        218,
+        245,
+        194,
+        153
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userroutines",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  114,
+                  111,
+                  117,
+                  116,
+                  105,
+                  110,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "routine",
+          "type": {
+            "defined": {
+              "name": "Routine"
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "add_workout",
       "discriminator": [
         116,
@@ -141,6 +204,65 @@
       ]
     },
     {
+      "name": "initialize_user_routine",
+      "discriminator": [
+        164,
+        128,
+        91,
+        110,
+        131,
+        214,
+        212,
+        98
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userroutines",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  114,
+                  111,
+                  117,
+                  116,
+                  105,
+                  110,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "userid",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "initialize_user_workouts",
       "discriminator": [
         39,
@@ -195,6 +317,65 @@
       "args": [
         {
           "name": "userid",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "remove_routine",
+      "discriminator": [
+        46,
+        203,
+        182,
+        129,
+        2,
+        126,
+        215,
+        170
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "userroutines",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  114,
+                  111,
+                  117,
+                  116,
+                  105,
+                  110,
+                  101,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "routineid",
           "type": "string"
         }
       ]
@@ -260,6 +441,19 @@
     }
   ],
   "accounts": [
+    {
+      "name": "Routines",
+      "discriminator": [
+        21,
+        90,
+        153,
+        55,
+        142,
+        62,
+        155,
+        234
+      ]
+    },
     {
       "name": "User",
       "discriminator": [
@@ -343,6 +537,54 @@
               "vec": {
                 "defined": {
                   "name": "Set"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Routine",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "routineid",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "exercises",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Exercise"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Routines",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "userid",
+            "type": "string"
+          },
+          {
+            "name": "routines",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "Routine"
                 }
               }
             }

@@ -1,4 +1,10 @@
-import React from "react";
+import * as React from "react";
+import * as anchor from "@coral-xyz/anchor";
+import * as idl from "../../api/gym-dapp_be.json"
+import ListOfExercises from "./ListOfExercises";
+import TransferSolana from "../solana/transfer-sol";
+import Reward from "./Reward";
+import Exercise, { SetProp } from "./Exercise";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import { Button, Container, Group, Modal, MultiSelect, Stack } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
@@ -10,17 +16,12 @@ import { addExercise, clearExercises, removeExercise } from "./workoutSlice";
 import { resetVolume } from "./volumeSlice";
 import { resetSets } from "./setsSlice";
 import { ExerciseProp, exercises, ExerciseCategory } from "../Exercises";
-import { ExercisePropDB, WorkoutExercisesProp, WorkoutPostProp } from "../Workout";
-import ListOfExercises from "./ListOfExercises";
-import Exercise, { SetProp } from "./Exercise";
-import TransferSolana from "../solana/transfer-sol";
-import { SECRET_KEY } from '../../constants'
-import Reward from "./Reward";
+import { WorkoutB, WorkoutExercisesProp } from "../Workout";
 import { DiscardWorkoutModal, FinishWorkoutModal } from "./WorkoutModals";
+import { SECRET_KEY } from '../../constants'
 import { v4 as uuidv4 } from 'uuid';
-
-import axios from 'axios'
 import { useUser } from '../../context/UserContext';
+import { GymDappBe } from "../../api/gym_dapp_be";
 
 const exercisesWorkout = exercises.map(
     (exercise: ExerciseProp) => {
@@ -31,8 +32,7 @@ const exercisesWorkout = exercises.map(
         }
     }
 )
-
-// exercitiile userului din baza de date 
+// toate exercitiile disponibile
 export const userExercises = exercises.map(
     (exercise: ExerciseProp) => {
         return {
@@ -145,36 +145,62 @@ const WorkoutExercises = (
         return exerciseKeys.get(exerciseId);
     };
 
-    const URL = 'http://127.0.0.1:8080/workout/post';
+    //
     const handleSaveWorkoutInDB = async (exercisesWorkout: WorkoutExercisesProp[]) => {
         if (!user || !user.userInfo || !user.userInfo.userId || !user.userInfo.username) {
             console.error("User information is missing");
             return;
         }
-        const workoutExercises : ExercisePropDB[] = exercisesWorkout.map((exercise: WorkoutExercisesProp) => {
-            const { muscleGroup, sets, name, id } = exercise;
-            return { id: id , name : name , muscle_group : muscleGroup, sets : sets};
-        })
 
-        const workoutPost: WorkoutPostProp = {
-            id: uuidv4(),
-            user_id: user.userInfo.userId,
-            username: user.userInfo.username,
-            exercises: workoutExercises,
-            date: new Date().toDateString(),
-            duration: elapsedTimeRef.current,
+        const workoutPost: WorkoutB = {
+            workoutid: uuidv4(),
+            exercises: exercisesWorkout.map((exercise: WorkoutExercisesProp) => ({
+              id: exercise.id,
+              name: exercise.name,
+              muscleGroup: exercise.muscleGroup,
+              sets: exercise.sets.map((set: SetProp) => ({
+                setNumber: set.set_number,
+                kg: set.kg,
+                reps: set.reps,
+                previous: set.previous || "",
+                done: set.done,
+              })),
+            })),
+            date: new anchor.BN(Math.floor(Date.now() / 1000)), // Timestamp UNIX în secunde
+            duration: Math.round(elapsedTimeRef.current / 60),
             volume: volume,
             sets: sets,
-            rewards: Reward({ sets, volume })
+            rewards: Reward({ sets, volume }),
         };
+        console.log("Workout to be saved:", workoutPost)
+
+        const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
+        const wallet = (window as any).solana;
+        
+        const provider = new anchor.AnchorProvider(connection, wallet, {
+            preflightCommitment: "processed",
+        });
+        
+        anchor.setProvider(provider);
+        const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
+   
         try {
-            axios.post(URL, workoutPost, 
-            ).then((response) => {
-                console.log(response);
-            }).catch(() => alert('Connect to the internet!'));
-        } catch (error) {
-            console.error("Failed to save workout in DB:", error);
-            alert("Failed to save workout. Please try again.");
+            await program.methods
+                .addWorkout(workoutPost)
+                .rpc();
+            console.log("Workout add successfully!")
+                
+            const workoutsAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
+                [Buffer.from("userworkouts"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+                program.programId
+            )
+                
+            const workoutsAccountPda = workoutsAccountPdaAndBump[0];
+            const updatedWorkouts: WorkoutB[] = (await program.account.workouts.fetch(workoutsAccountPda)).workouts;
+
+            console.log("Workouts", updatedWorkouts);
+        } catch (error: any) {
+            console.error("Failed to save workout:", error);
         }
     };
 
@@ -235,6 +261,7 @@ const WorkoutExercises = (
             // modifica seturile pentru urmatoarele antrenamente
             const amount = Reward({ sets, volume });
             const senderKeypair: Keypair = Keypair.fromSecretKey(SECRET_KEY);
+            // test send amount
             await TransferSolana({ senderKeypair, recipientPubKey: new PublicKey(user.userInfo.publicKey), amountToSend: amount })
             setLoading(false);
             handleDiscardWorkout();

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Group, Skeleton, Stack } from '@mantine/core';
 import { useUser } from '../context/UserContext';
-import { WorkoutPostProp } from './Workout';
+import { WorkoutB, WorkoutsB } from './Workout';
 import { modals } from '@mantine/modals';
 import { SkeletonText } from '@chakra-ui/react';
 import { motion } from "framer-motion";
@@ -10,29 +10,7 @@ import * as idl from "../api/gym-dapp_be.json"
 import { GymDappBe } from '@/api/gym_dapp_be';
 import { PublicKey } from '@solana/web3.js';
 
-interface WorkoutsResponse {
-  userid: string;
-  workouts: {
-      workoutid: string;
-      exercises: {
-          id: string;
-          name: string;
-          muscleGroup: string;
-          sets: {
-              setNumber: number;
-              kg: number;
-              reps: number;
-              previous: string;
-              done: boolean;
-          }[];
-      }[];
-      date: anchor.BN;
-      duration: number;
-      volume: number;
-      sets: number;
-      rewards: number;
-  }[];
-}
+
 
 const Balance = () => {
   const { balance } = useUser();
@@ -201,7 +179,8 @@ const formatDuration = (duration: number) => {
   return `${hours}h ${minutes}m ${seconds}s`;
 };
 
-const Post = ({ workout, onDelete }: { workout: WorkoutPostProp, onDelete: (id: string) => void }) => {
+const Post = ({ workout, onDelete }: { workout: WorkoutB, onDelete: (id: string) => void }) => {
+  const { user } = useUser();
   const openDeleteModal = () =>
     modals.openConfirmModal({
       title: 'Delete your workout',
@@ -221,14 +200,14 @@ const Post = ({ workout, onDelete }: { workout: WorkoutPostProp, onDelete: (id: 
       confirmProps: { color: 'red', variant: 'outline' },
       cancelProps: { color: 'gray', variant: 'outline' },
       onCancel: () => console.log('Cancel'),
-      onConfirm: () => onDelete(workout.id),
+      onConfirm: () => onDelete(workout.workoutid),
     });
 
   return (
     <div className="w-[100%] p-6 my-6 bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 dark:bg-neutral-800 dark:border-neutral-700 ">
 
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{workout.username}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{user.userInfo.username}</h2>
         <span className="text-sm text-gray-500">
           {new Date(workout.date).toLocaleDateString()}
         </span>
@@ -240,7 +219,7 @@ const Post = ({ workout, onDelete }: { workout: WorkoutPostProp, onDelete: (id: 
           {workout.exercises.map((exercise, index) => (
             index < 3 && (
               <li key={exercise.id}>
-                <span className="font-medium">{exercise.name}</span> - {exercise.muscle_group}
+                <span className="font-medium">{exercise.name}</span> - {exercise.muscleGroup}
               </li>
             )
           ))}
@@ -279,7 +258,7 @@ const Post = ({ workout, onDelete }: { workout: WorkoutPostProp, onDelete: (id: 
 };
 
 const Home = () => {
-  const [workouts, setWorkouts] = React.useState<WorkoutPostProp[]>([]);
+  const [workouts, setWorkouts] = React.useState<WorkoutB[]>([]);
   const { user } = useUser();
 
 
@@ -288,7 +267,7 @@ const Home = () => {
       if (!user || !user.userInfo || !user.userInfo.userId) {
         return;
       }
-      //* todos- functie pentru asta
+
       const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
       const wallet = (window as any).solana;
 
@@ -298,7 +277,7 @@ const Home = () => {
 
       anchor.setProvider(provider);
       const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
-      //*
+
       try {
         const workoutsAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
             [Buffer.from("userworkouts"), new PublicKey(user.userInfo.publicKey).toBuffer()],
@@ -306,34 +285,13 @@ const Home = () => {
         )
 
         const workoutsAccountPda = workoutsAccountPdaAndBump[0];
-        const response: WorkoutsResponse = await program.account.workouts.fetch(workoutsAccountPda);
+        const response: WorkoutsB = await program.account.workouts.fetch(workoutsAccountPda);
 
-        const reversedWorkouts = response.workouts.reverse();
-        const workoutsData: WorkoutPostProp[] = reversedWorkouts.map((workout) => ({
-          id: workout.workoutid,
-          user_id: response.userid,
-          username: user.userInfo.username,
-          exercises: workout.exercises.map((exercise) => ({
-            id: exercise.id,
-            name: exercise.name,
-            muscle_group: exercise.muscleGroup,
-            sets: exercise.sets.map((set) => ({
-              set_number: set.setNumber,
-              kg: set.kg,
-              reps: set.reps,
-              previous: set.previous,
-              done: set.done,
-            })),
-          })),
-          date: workout.date.toString(),
-          duration: workout.duration,
-          volume: workout.volume,
-          sets: workout.sets,
-          rewards: workout.rewards,
-        }));
-        console.log("Workouts", workoutsData);
+        const reversedWorkouts : WorkoutB[] = response.workouts.reverse();
+  
+        console.log("Workouts", reversedWorkouts);
 
-        setWorkouts(workoutsData);
+        setWorkouts(reversedWorkouts);
       } catch (error) {
         console.error("Failed to fetch workouts:", error);
         console.error("Failed to fetch workouts. Please try again.");
@@ -345,7 +303,7 @@ const Home = () => {
 
   async function DeleteWorkout(id: string) {
     try {
-      setWorkouts((prevWorkouts) => prevWorkouts.filter((workout) => workout.id !== id));
+      setWorkouts((prevWorkouts) => prevWorkouts.filter((workout) => workout.workoutid !== id));
     } catch (error) {
       console.error("Failed to delete workout:", error);
       console.error("Failed to delete workout. Please try again.");
@@ -357,8 +315,8 @@ const Home = () => {
       <Balance />
       <Container w={"100%"}>
         {workouts.length > 0 ? (
-          workouts.map((workout: WorkoutPostProp) => (
-            <Post key={workout.id} workout={workout} onDelete={DeleteWorkout} />
+          workouts.map((workout: WorkoutB) => (
+            <Post key={workout.workoutid} workout={workout} onDelete={DeleteWorkout} />
           ))
         ) : (
           workouts.length === 0 ?

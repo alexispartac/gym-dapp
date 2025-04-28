@@ -1,3 +1,5 @@
+import * as anchor from "@coral-xyz/anchor";
+import * as idl from "../../api/gym-dapp_be.json"
 import React from "react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useSelector, useDispatch } from "react-redux";
@@ -5,11 +7,12 @@ import { Button, Container, Group, Modal, Stack } from "@mantine/core";
 import WorkoutExercises, { userExercises }  from "../new-workout/WorkoutExercises";
 import { Sets, Timer, Volume } from "../new-workout/NewWorkout";
 import { addExercise, clearExercises } from "../new-workout/workoutSlice";
-import { RoutineExerciseProp, RoutineProp } from "../Routines";
+import { RoutineB, RoutineExerciseProp, RoutineProp } from "../Routines";
 import { AppDispatch, RootState } from "../new-workout/store";
 import { modals } from "@mantine/modals";
-import axios from 'axios'
-
+import { GymDappBe } from '@/api/gym_dapp_be';
+import { PublicKey } from '@solana/web3.js';
+import { useUser } from '../../context/UserContext';
 
 const InfoRoutine = ({ routine, openInfoRoutine, close }: { routine: RoutineProp; openInfoRoutine: boolean; close: () => void }) => {
     return (
@@ -105,13 +108,13 @@ const StartRoutine = ({
     );
 };
 
-
 const Routine = ({ routine, setRoutinesList }: { routine: RoutineProp, setRoutinesList : React.Dispatch<React.SetStateAction<RoutineProp[]>> }) => {
     const [openInfoRoutine, setOpenInfoRoutine] = React.useState<boolean>(false);
     const [openStartRoutine, setOpenStartRoutine] = React.useState<boolean>(false);
     const dispatch = useDispatch<AppDispatch>();
     const startTimeRef = React.useRef<number | null>(null); 
     const elapsedTimeRef = React.useRef(0); 
+    const { user } = useUser();
 
     const handleStart= () => {
     startTimeRef.current = Date.now(); 
@@ -133,20 +136,37 @@ const Routine = ({ routine, setRoutinesList }: { routine: RoutineProp, setRoutin
             dispatch(addExercise({...rest, inWorkout: true, sets: userExercise.sets}));
         });
     }
-    const deleteURL = `http://127.0.0.1:8080/routine/delete`;
-    async function DeleteRoutine(id: string){
+    async function DeleteRoutine(routineid: string){
+        const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
+        const wallet = (window as any).solana;
+
+        const provider = new anchor.AnchorProvider(connection, wallet, {
+            preflightCommitment: "processed",
+        });
+
+        anchor.setProvider(provider);
+        const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
+        
         try {
-          await axios.delete(`${deleteURL}/${id}`, {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-          setRoutinesList((prevRoutines) => prevRoutines.filter((routine) => routine.id !== id));
-        } catch (error) {
-          console.error("Failed to delete workout:", error);
-          alert("Failed to delete workout. Please try again.");
+            await program.methods
+                .removeRoutine(routineid)
+                // .signers([wallet])
+                .rpc();
+            console.log("Routine deleted successfully!")
+
+            const routinesAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
+                [Buffer.from("userroutines"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+                program.programId
+            )
+
+            const routinesAccountPda = routinesAccountPdaAndBump[0];
+            const updatedRoutines: RoutineB[] = (await program.account.routines.fetch(routinesAccountPda)).routines;
+
+            console.log("Routines", updatedRoutines);
+        } catch (error: any) {
+            console.error("Failed to delete routine:", error);
         }
-      };
+    };
 
     const handleDeleteRoutine = () => {
         modals.openConfirmModal({
@@ -165,7 +185,7 @@ const Routine = ({ routine, setRoutinesList }: { routine: RoutineProp, setRoutin
             confirmProps: { color: 'red', variant: 'outline' },
             cancelProps: { color: 'gray', variant: 'outline' },
             onCancel: () => console.log("Cancel"),
-            onConfirm: () => DeleteRoutine(routine.id),
+            onConfirm: () => DeleteRoutine(routine.routineid),
         });
     };
 

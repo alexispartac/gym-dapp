@@ -41,9 +41,6 @@ function App() {
         setBalance(balance);
       }).catch(() => alert('Connect to the internet!'));
 
-      
-
-
       // adauga asta in blockchain
       GetNFTs({ pubkey: user.userInfo.publicKey }).then((NFTs: UserNFT[] | undefined) => {
         if (NFTs && NFTs.length > 0) {
