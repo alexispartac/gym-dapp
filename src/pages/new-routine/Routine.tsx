@@ -11,7 +11,7 @@ import { RoutineB, RoutineExerciseProp, RoutineProp } from "../Routines";
 import { AppDispatch, RootState } from "../new-workout/store";
 import { modals } from "@mantine/modals";
 import { GymDappBe } from '@/api/gym_dapp_be';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { useUser } from '../../context/UserContext';
 
 const InfoRoutine = ({ routine, openInfoRoutine, close }: { routine: RoutineProp; openInfoRoutine: boolean; close: () => void }) => {
@@ -139,7 +139,7 @@ const Routine = ({ routine, setRoutinesList }: { routine: RoutineProp, setRoutin
     async function DeleteRoutine(routineid: string){
         const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
         const wallet = (window as any).solana;
-
+        await wallet.connect()
         const provider = new anchor.AnchorProvider(connection, wallet, {
             preflightCommitment: "processed",
         });
@@ -148,18 +148,25 @@ const Routine = ({ routine, setRoutinesList }: { routine: RoutineProp, setRoutin
         const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
         
         try {
-            await program.methods
-                .removeRoutine(routineid)
-                // .signers([wallet])
-                .rpc();
-            console.log("Routine deleted successfully!")
-
             const routinesAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
-                [Buffer.from("userroutines"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+                [Buffer.from("routines"), new PublicKey(user.userInfo.publicKey).toBuffer()],
                 program.programId
             )
 
             const routinesAccountPda = routinesAccountPdaAndBump[0];
+
+            await program.methods
+                .removeRoutine(routineid)
+                .accountsPartial(
+                    {
+                      user: new PublicKey(user.userInfo.publicKey),
+                      routines: routinesAccountPda,
+                      systemProgram: SystemProgram.programId
+                    }
+                )
+                .rpc();
+            console.log("Routine deleted successfully!")
+
             const updatedRoutines: RoutineB[] = (await program.account.routines.fetch(routinesAccountPda)).routines;
 
             console.log("Routines", updatedRoutines);

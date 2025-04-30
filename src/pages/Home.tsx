@@ -280,7 +280,7 @@ const Home = () => {
 
       try {
         const workoutsAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
-            [Buffer.from("userworkouts"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+            [Buffer.from("workouts"), new PublicKey(user.userInfo.publicKey).toBuffer()],
             program.programId
         )
 
@@ -301,9 +301,46 @@ const Home = () => {
     fetchWorkouts();
   }, [user]);
 
-  async function DeleteWorkout(id: string) {
+  async function DeleteWorkout(workoutid: string) {
+    if (!user || !user.userInfo || !user.userInfo.userId || !user.userInfo.username) {
+        console.error("User information is missing");
+        return;
+    }
+    const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
+    const wallet = (window as any).solana;
+    await wallet.connect();
+    const provider = new anchor.AnchorProvider(connection, wallet, {
+      preflightCommitment: "processed",
+    });
+
+    anchor.setProvider(provider);
+    const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
+
     try {
-      setWorkouts((prevWorkouts) => prevWorkouts.filter((workout) => workout.workoutid !== id));
+      const workoutsAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
+        [Buffer.from("workouts"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+        program.programId
+      )
+
+      const workoutsAccountPda = workoutsAccountPdaAndBump[0];
+
+      await program.methods
+        .removeWorkout(workoutid)
+        .accountsPartial(
+          {
+            user: new PublicKey(user.userInfo.publicKey),
+            workouts: workoutsAccountPda,
+            systemProgram: anchor.web3.SystemProgram.programId,
+          }
+        )
+        .rpc();
+      console.log("Workout remove successfully!")
+
+      const updatedWorkouts: WorkoutB[] = (await program.account.workouts.fetch(workoutsAccountPda)).workouts;
+
+      console.log("Workouts", updatedWorkouts);
+
+      setWorkouts((prevWorkouts) => prevWorkouts.filter((workout) => workout.workoutid !== workoutid));
     } catch (error) {
       console.error("Failed to delete workout:", error);
       console.error("Failed to delete workout. Please try again.");

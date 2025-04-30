@@ -176,7 +176,7 @@ const WorkoutExercises = (
 
         const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
         const wallet = (window as any).solana;
-        
+        await wallet.connect();
         const provider = new anchor.AnchorProvider(connection, wallet, {
             preflightCommitment: "processed",
         });
@@ -185,17 +185,25 @@ const WorkoutExercises = (
         const program: anchor.Program<GymDappBe> = new anchor.Program(idl as GymDappBe, provider);
    
         try {
-            await program.methods
-                .addWorkout(workoutPost)
-                .rpc();
-            console.log("Workout add successfully!")
-                
             const workoutsAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
-                [Buffer.from("userworkouts"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+                [Buffer.from("workouts"), new PublicKey(user.userInfo.publicKey).toBuffer()],
                 program.programId
             )
                 
             const workoutsAccountPda = workoutsAccountPdaAndBump[0];
+
+            await program.methods
+                .addWorkout(workoutPost)
+                .accountsPartial(
+                    {
+                      user: new PublicKey(user.userInfo.publicKey),
+                      workouts: workoutsAccountPda,
+                      systemProgram: anchor.web3.SystemProgram.programId,
+                    }
+                )
+                .rpc();
+            console.log("Workout add successfully!")
+                
             const updatedWorkouts: WorkoutB[] = (await program.account.workouts.fetch(workoutsAccountPda)).workouts;
 
             console.log("Workouts", updatedWorkouts);

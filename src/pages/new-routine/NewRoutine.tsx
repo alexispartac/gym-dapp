@@ -10,7 +10,7 @@ import { modals } from "@mantine/modals";
 import { useUser } from "../../context/UserContext";
 import { v4 as uuidv4 } from 'uuid'
 import { GymDappBe } from "../../api/gym_dapp_be";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, SystemProgram } from "@solana/web3.js";
 
 
 
@@ -108,11 +108,13 @@ const NewRoutine = (
           return { id, name, muscleGroup, sets: [] }
         })
       } 
+
       console.log("Routine to be saved:", routinePost)
 
       const connection = new anchor.web3.Connection("https://api.devnet.solana.com", "processed");
       const wallet = (window as any).solana;
-
+      await wallet.connect();
+      console.log("Wallet:", wallet);
       const provider = new anchor.AnchorProvider(connection, wallet, {
         preflightCommitment: "processed",
       });
@@ -122,13 +124,21 @@ const NewRoutine = (
       
       try {
         const routinesAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
-          [Buffer.from("userroutines"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+          [Buffer.from("routines"), new PublicKey(user.userInfo.publicKey).toBuffer()],
           program.programId
         )
         const routinesAccountPda = routinesAccountPdaAndBump[0];
 
         await program.methods
           .addRoutine(routinePost)
+          .accountsPartial(
+            {
+              user: new PublicKey(user.userInfo.publicKey),
+              routines: routinesAccountPda,
+              systemProgram: SystemProgram.programId
+            }
+          )
+          .signers([])
           .rpc();
         console.log("Routine added successfully!");
 

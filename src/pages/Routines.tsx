@@ -69,7 +69,7 @@ const Routines = () => {
 
         try {
           const routinesAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
-            [Buffer.from("userroutines"), new PublicKey(user.userInfo.publicKey).toBuffer()],
+            [Buffer.from("routines"), new PublicKey(user.userInfo.publicKey).toBuffer()],
             program.programId
           )
 

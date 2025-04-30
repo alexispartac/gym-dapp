@@ -32,17 +32,13 @@ export type GymDappBe = {
           "signer": true
         },
         {
-          "name": "userroutines",
+          "name": "routines",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  117,
-                  115,
-                  101,
-                  114,
                   114,
                   111,
                   117,
@@ -95,17 +91,13 @@ export type GymDappBe = {
           "signer": true
         },
         {
-          "name": "userworkouts",
+          "name": "workouts",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  117,
-                  115,
-                  101,
-                  114,
                   119,
                   111,
                   114,
@@ -228,17 +220,13 @@ export type GymDappBe = {
           "signer": true
         },
         {
-          "name": "userroutines",
+          "name": "routines",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  117,
-                  115,
-                  101,
-                  114,
                   114,
                   111,
                   117,
@@ -287,17 +275,13 @@ export type GymDappBe = {
           "signer": true
         },
         {
-          "name": "userworkouts",
+          "name": "workouts",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  117,
-                  115,
-                  101,
-                  114,
                   119,
                   111,
                   114,
@@ -346,17 +330,13 @@ export type GymDappBe = {
           "signer": true
         },
         {
-          "name": "userroutines",
+          "name": "routines",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  117,
-                  115,
-                  101,
-                  114,
                   114,
                   111,
                   117,
@@ -405,17 +385,13 @@ export type GymDappBe = {
           "signer": true
         },
         {
-          "name": "userworkouts",
+          "name": "workouts",
           "writable": true,
           "pda": {
             "seeds": [
               {
                 "kind": "const",
                 "value": [
-                  117,
-                  115,
-                  101,
-                  114,
                   119,
                   111,
                   114,

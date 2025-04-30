@@ -106,7 +106,7 @@ export const SignUpModal = ({ context, id }: ContextModalProps) => {
                 console.log("User Account PDA:", userAccountPda.toString());
 
                 const workoutsAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
-                    [Buffer.from("userworkouts"), wallet.publicKey.toBuffer()],
+                    [Buffer.from("workouts"), wallet.publicKey.toBuffer()],
                     program.programId
                 )
 
@@ -114,7 +114,7 @@ export const SignUpModal = ({ context, id }: ContextModalProps) => {
                 console.log("User Workouts Account PDA:", workoutsAccountPda.toString());
 
                 const routinesAccountPdaAndBump = await anchor.web3.PublicKey.findProgramAddress(
-                    [Buffer.from("userroutines"), wallet.publicKey.toBuffer()],
+                    [Buffer.from("routines"), wallet.publicKey.toBuffer()],
                     program.programId
                 )
 
